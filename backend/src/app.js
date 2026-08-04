@@ -27,6 +27,7 @@ const rateLimiter  = require('./middleware/rateLimiter');
 const authRoutes   = require('./routes/authRoutes');
 const userRoutes   = require('./routes/userRoutes');
 const gigRoutes    = require('./routes/gigRoutes');
+const txRoutes     = require('./routes/transactionRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const logger       = require('./utils/logger');
 
@@ -96,9 +97,10 @@ app.get('/api/health', (_req, res) => {
 });
 
 // ── API Routes ─────────────────────────────────────────────────────────────
-app.use('/api/auth',  authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/gigs',  gigRoutes);
+app.use('/api/auth',         authRoutes);
+app.use('/api/users',        userRoutes);
+app.use('/api/gigs',         gigRoutes);
+app.use('/api/transactions', txRoutes);
 
 // ── 404 – Unknown Routes ───────────────────────────────────────────────────
 app.use((_req, res) => {
