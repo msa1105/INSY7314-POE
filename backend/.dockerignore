@@ -1,0 +1,22 @@
+.dockerignore
+# Git
+.git
+.gitignore
+
+# Dependencies (installed inside container)
+node_modules/
+
+# Dev files
+.env
+*.test.js
+tests/
+coverage/
+*.log
+logs/
+
+# SSL keys (mounted as volume at runtime)
+ssl/
+
+# Dev tools
+.eslintrc*
+nodemon.json

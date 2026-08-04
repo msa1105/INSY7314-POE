@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hustlehub-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1h}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-12}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://localhost:3000}
+      - SSL_KEY_PATH=./ssl/server.key
+      - SSL_CERT_PATH=./ssl/server.cert
+    volumes:
+      # Persist JSON data stores between container restarts
+      - backend-data:/app/src/data
+      # Mount pre-generated SSL certificates
+      - ./backend/ssl:/app/ssl:ro
+    restart: unless-stopped
+    networks:
+      - hustlehub-net
+    healthcheck:
+      test: ["CMD", "node", "-e",
+        "const https=require('https');const r=https.request({hostname:'localhost',port:5000,path:'/api/health',method:'GET',rejectUnauthorized:false},res=>process.exit(res.statusCode===200?0:1));r.on('error',()=>process.exit(1));r.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  backend-data:
+
+networks:
+  hustlehub-net:
+    driver: bridge
