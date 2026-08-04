@@ -157,15 +157,18 @@ tests/
 
 ### Protected Endpoints (require `Authorization: Bearer <token>`)
 
-| Method | Endpoint             | Role Required         | Description                        |
-|--------|----------------------|-----------------------|------------------------------------|
-| GET    | `/api/users/profile` | Any authenticated     | Get own user profile               |
-| GET    | `/api/users`         | Admin only            | List all users                     |
-| GET    | `/api/gigs`          | Any authenticated     | Browse all gigs                    |
-| GET    | `/api/gigs/:id`      | Any authenticated     | Get single gig                     |
-| POST   | `/api/gigs`          | Freelancer only       | Create a new gig                   |
-| PUT    | `/api/gigs/:id`      | Freelancer (owner)    | Update own gig                     |
-| DELETE | `/api/gigs/:id`      | Freelancer (owner) or Admin | Delete a gig               |
+| Method | Endpoint                    | Role Required              | Description                             |
+|--------|-----------------------------|----------------------------|-----------------------------------------|
+| GET    | `/api/users/profile`        | Any authenticated          | Get own user profile                    |
+| GET    | `/api/users`                | Admin only                 | List all users                          |
+| GET    | `/api/gigs`                 | Any authenticated          | Browse all gigs                         |
+| GET    | `/api/gigs/:id`             | Any authenticated          | Get single gig                          |
+| POST   | `/api/gigs`                 | Freelancer only            | Create a new gig                        |
+| PUT    | `/api/gigs/:id`             | Freelancer (owner)         | Update own gig                          |
+| DELETE | `/api/gigs/:id`             | Freelancer (owner) or Admin| Delete a gig                            |
+| POST   | `/api/transactions`         | Client only                | Book a gig (simulated payment)          |
+| GET    | `/api/transactions/income`  | Freelancer only            | View income summary + estimated tax     |
+| GET    | `/api/transactions`         | Admin only                 | View all platform transactions          |
 
 ### Request / Response Examples
 
