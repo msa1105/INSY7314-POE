@@ -8,14 +8,10 @@
     "dev": "nodemon server.js",
     "generate-certs": "node generate-certs.js",
     "test": "cross-env NODE_ENV=test jest --coverage --forceExit",
-    "test:watch": "cross-env NODE_ENV=test jest --watch"
+    "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "lint": "eslint src/ tests/ --ext .js"
   },
-  "keywords": [
-    "freelance",
-    "marketplace",
-    "api",
-    "secure"
-  ],
+  "keywords": ["freelance", "marketplace", "api", "secure", "nodejs", "express", "jwt"],
   "author": "HustleHub+ Team",
   "license": "ISC",
   "dependencies": {
@@ -28,13 +24,14 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "uuid": "^11.1.1"
+    "uuid": "^11.0.0"
   },
   "devDependencies": {
-    "cross-env": "^10.1.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.9.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.4",
-    "selfsigned": "^5.5.0",
+    "selfsigned": "^2.4.1",
     "supertest": "^7.0.0"
   },
   "jest": {
@@ -43,5 +40,9 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
