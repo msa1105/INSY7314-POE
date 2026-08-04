@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "hustlehub-part1-collection",
     "name": "HustleHub+ API – Part 1",
-    "description": "Postman collection for HustleHub+ Part 1 – Secure Backend Foundations.\n\nCovers:\n- User registration (client and freelancer)\n- Login with token generation\n- Protected profile route\n- Invalid/edge-case scenarios\n- Gig management (freelancer RBAC)\n\nBase URL variable: {{baseUrl}} = https://localhost:5000\nToken variable: {{token}} – automatically set by the Login request.",
+    "description": "Postman collection for HustleHub+ Part 1 – Secure Backend Foundations.\n\nCovers:\n- User registration (client and freelancer)\n- Login with token generation\n- Protected profile route\n- Invalid/edge-case scenarios\n- Gig management (freelancer RBAC)\n- Booking / transaction creation (client)\n- Income + estimated tax summary (freelancer)\n\nBase URL variable: {{baseUrl}} = https://localhost:5000\nToken variable: {{token}} – automatically set by the Login request.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
