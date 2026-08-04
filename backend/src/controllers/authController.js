@@ -18,8 +18,9 @@ const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
-const userStore = require('../utils/userStore');
-const logger    = require('../utils/logger');
+const userStore             = require('../utils/userStore');
+const logger                = require('../utils/logger');
+const { ROLES, JWT: JWT_CFG } = require('../config/constants');
 
 const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 12;
 const JWT_SECRET  = process.env.JWT_SECRET;
@@ -48,7 +49,7 @@ async function register(req, res, next) {
       name:         name.trim(),
       email:        email.toLowerCase().trim(),
       passwordHash,
-      role:         role || 'client',
+      role:         role || ROLES.CLIENT,
     });
 
     // Generate JWT
@@ -125,10 +126,10 @@ function signToken(user) {
     },
     JWT_SECRET,
     {
-      algorithm:  'HS256',
+      algorithm:  JWT_CFG.ALGORITHM,
       expiresIn:  JWT_EXPIRES,
-      issuer:     'hustlehub-api',
-      audience:   'hustlehub-client',
+      issuer:     JWT_CFG.ISSUER,
+      audience:   JWT_CFG.AUDIENCE,
     }
   );
 }
