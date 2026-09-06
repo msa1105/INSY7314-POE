@@ -10,25 +10,42 @@ HustleHub+ is a secure freelance marketplace platform that allows freelancers to
 
 1. [System Overview](#system-overview)
 2. [Intended Users](#intended-users)
-3. [Backend Structure](#backend-structure)
-4. [API Endpoints](#api-endpoints)
-5. [Security Decisions](#security-decisions)
+3. [Architecture Diagram](#architecture-diagram)
+4. [Backend Structure](#backend-structure)
+5. [Input Validation & Error Handling](#input-validation--error-handling)
+6. [API Endpoints](#api-endpoints)
+7. [Security Decisions](#security-decisions)
    - [Password Hashing](#password-hashing)
    - [JWT Authentication](#jwt-token-based-authentication)
    - [Input Validation & Sanitisation](#input-validation--sanitisation)
    - [HTTPS Configuration](#https-configuration)
    - [Additional Security Controls](#additional-security-controls)
-6. [Getting Started](#getting-started)
-7. [Running the API](#running-the-api)
-8. [Running Tests](#running-tests)
-9. [Postman Collection](#postman-collection)
-10. [What's Left for Part 2](#whats-left-for-part-2)
+8. [Getting Started](#getting-started)
+9. [Running the API](#running-the-api)
+10. [Running Tests](#running-tests)
+11. [Postman Collection](#postman-collection)
+12. [What's Left for Part 2](#whats-left-for-part-2)
 
 ---
 
 ## System Overview
 
-HustleHub+ is designed and implemented following the **MERN architecture**:
+**HustleHub+** is a secure freelance marketplace platform that connects freelancers offering professional services with clients who need to hire them. The platform allows freelancers to advertise their skills through service listings ("gigs"), while clients can browse, search, and book those services with simulated payments.
+
+### Purpose
+
+The South African freelance economy is growing rapidly, yet many platforms lack adequate security measures to protect user data and financial information. HustleHub+ was designed to address this gap by building security into the foundation of the system from day one — not as an afterthought.
+
+### Key Goals
+
+- **Secure authentication** — Passwords are hashed with bcrypt; sessions are managed via short-lived JWTs
+- **Role-based access control** — Clients, freelancers, and admins each have distinct permissions enforced at the middleware level
+- **Data protection** — All traffic is encrypted over HTTPS; sensitive fields are never exposed in API responses or logs
+- **Input safety** — Every user input is validated and sanitised before reaching business logic, preventing injection and XSS attacks
+
+### Technology Stack (MERN)
+
+The platform is designed and implemented following the **MERN architecture**:
 
 | Layer      | Technology               | Status     |
 |------------|--------------------------|------------|
@@ -39,108 +56,235 @@ HustleHub+ is designed and implemented following the **MERN architecture**:
 
 The platform processes sensitive information including user credentials, transactional records, and income-related data. Security is treated as a **primary design concern**, not an afterthought.
 
-### Overall System Architecture (MERN)
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        INTERNET / CLIENT                        │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │  HTTPS only (TLS 1.2+)
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    REACT FRONTEND  (Part 2)                     │
-│              Browser SPA – served via HTTPS                     │
-│  JWT stored in httpOnly cookie / memory (NOT localStorage)      │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │  REST API (HTTPS / JSON)
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│               NODE.JS + EXPRESS BACKEND  ✅ Part 1              │
-│                                                                 │
-│  ┌──────────────┐  ┌────────────────┐  ┌────────────────────┐  │
-│  │    Helmet    │  │  Rate Limiter  │  │    CORS Policy     │  │
-│  │ (HTTP hdrs)  │  │ (brute-force)  │  │ (origin whitelist) │  │
-│  └──────────────┘  └────────────────┘  └────────────────────┘  │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │              Express Router / Controllers                │   │
-│  │  /api/auth/register   /api/auth/login                   │   │
-│  │  /api/users/profile   /api/gigs                         │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  ┌──────────────┐  ┌────────────────┐  ┌────────────────────┐  │
-│  │  JWT Verify  │  │ express-valid. │  │  Secure Error Hdlr │  │
-│  │  Middleware  │  │  (validation)  │  │  (no stack leaks)  │  │
-│  └──────────────┘  └────────────────┘  └────────────────────┘  │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│            DATA LAYER                                           │
-│  Part 1: File-based JSON store  (src/data/users.json)          │
-│  Part 2: MongoDB Atlas / local  (Mongoose ODM)                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
 ---
 
 ## Intended Users
 
-| Role           | Description                                                                 |
-|----------------|-----------------------------------------------------------------------------|
-| **Freelancer** | Registers on the platform, creates and manages service listings (gigs), receives bookings and payments, views income and tax dashboard. |
-| **Client**     | Registers on the platform, browses and searches freelancer gigs, places bookings, makes simulated payments. |
-| **Admin**      | Platform administrator. Can view all users and manage platform content.     |
+HustleHub+ supports three user roles, each with distinct capabilities and access levels enforced through role-based access control (RBAC):
+
+| Role           | Description                                                                 | Key Permissions |
+|----------------|-----------------------------------------------------------------------------|----------------|
+| **Freelancer** | Registers on the platform, creates and manages service listings (gigs), receives bookings and payments, views income and tax dashboard. | Create/update/delete own gigs, view income summary |
+| **Client**     | Registers on the platform, browses and searches freelancer gigs, places bookings, makes simulated payments. | Browse gigs, book services, make payments |
+| **Admin**      | Platform administrator. Can view all users and manage platform content.     | View all users, delete any gig, view all transactions |
+
+Access control is enforced at two levels:
+1. **Authentication** (`authenticate` middleware) — Verifies the JWT token is valid; rejects unauthenticated requests with HTTP 401
+2. **Authorisation** (`authorise(...roles)` middleware) — Checks the user's role against the permitted roles for each endpoint; rejects unauthorised requests with HTTP 403
+
+---
+
+## Architecture Diagram
+
+The following diagram illustrates the full request flow through the HustleHub+ backend, including security boundaries at each layer:
+
+![HustleHub+ Architecture Diagram](architecture_diagram.jpg)
+
+### Security Boundaries
+
+The architecture enforces security at every layer of the request lifecycle:
+
+| Boundary | Layer | Protection |
+|----------|-------|------------|
+| **Transport** | HTTPS/TLS | All data encrypted in transit; HTTP is never exposed |
+| **Perimeter** | Helmet, CORS, Rate Limiter | Security headers set, origins whitelisted, brute-force mitigated |
+| **Input** | express-validator, Body Parser (10KB) | All input validated/sanitised before reaching controllers; oversized payloads rejected |
+| **Identity** | JWT Authentication | Token verified on every protected request; expired/tampered tokens rejected (401) |
+| **Access** | RBAC Authorisation | Role checked against endpoint permissions; unauthorised roles rejected (403) |
+| **Output** | Secure Error Handler | Stack traces, file paths, and internal details never sent to client |
+| **Data** | bcrypt, `omitPassword()` | Passwords hashed before storage; password hashes stripped from all API responses |
+
+### Mermaid Diagram
+
+```mermaid
+flowchart TD
+    Client["Client (Browser / Postman)"]
+    Client -->|"HTTPS / TLS"| SecurityLayer
+
+    subgraph Backend["Node.js + Express Backend (Port 5000)"]
+        SecurityLayer["Security Middleware\nHelmet · CORS · Rate Limiter · Morgan"]
+        SecurityLayer --> BodyParser["Body Parser (10KB limit)"]
+        BodyParser --> Routes["API Routes\n/api/auth · /api/users · /api/gigs · /api/transactions"]
+        Routes --> Middleware["Request Middleware\nexpress-validator · JWT Auth · RBAC Authorise"]
+        Middleware --> Controllers["Controllers\nauthController · userController · gigController · transactionController"]
+    end
+
+    Controllers --> DataLayer
+
+    subgraph DataLayer["Data Layer"]
+        JSONStore["JSON File Store (Part 1)\nusers.json · gigs.json · transactions.json"]
+        MongoDB[("MongoDB (Part 2)")]
+        JSONStore -.->|"Migration"| MongoDB
+    end
+```
 
 ---
 
 ## Backend Structure
 
+The backend follows a clear **separation of concerns** pattern, dividing code into distinct layers:
+
+| Layer | Purpose | Files |
+|-------|---------|-------|
+| **Routes** | Define API endpoints and attach validation chains + middleware | `authRoutes.js`, `userRoutes.js`, `gigRoutes.js`, `transactionRoutes.js` |
+| **Middleware** | Cross-cutting concerns (auth, validation, error handling, rate limiting) | `auth.js`, `validate.js`, `errorHandler.js`, `rateLimiter.js` |
+| **Controllers** | Business logic — process validated requests and return responses | `authController.js`, `userController.js`, `gigController.js`, `transactionController.js` |
+| **Data / Store** | Persistence layer — read/write to JSON file stores (MongoDB in Part 2) | `userStore.js`, `gigStore.js`, `transactionStore.js` |
+| **Config** | Application constants and configuration values | `constants.js` |
+
+This separation ensures that each layer has a single responsibility: routes handle HTTP routing, middleware handles cross-cutting security concerns, controllers handle business logic, and stores handle data persistence. This makes the codebase easier to test, maintain, and extend.
+
+### Folder Tree
+
 ```
 backend/
-├── server.js                   # HTTPS server entry point
-├── generate-certs.js           # Self-signed SSL certificate generator
+├── server.js                        # HTTPS server entry point
+├── generate-certs.js                # Self-signed SSL certificate generator
 ├── package.json
-├── .env.example                # Environment variable template
+├── .env.example                     # Environment variable template
 ├── .gitignore
 │
-├── ssl/                        # SSL certs (git-ignored)
+├── ssl/                             # SSL certs (git-ignored)
 │   ├── server.key
 │   └── server.cert
 │
-├── logs/                       # Application logs (git-ignored)
+├── logs/                            # Application logs (git-ignored)
 │   └── app.log
 │
 └── src/
-    ├── app.js                  # Express app setup (middleware, routes)
+    ├── app.js                       # Express app setup (middleware stack, route mounting)
+    │
+    ├── config/
+    │   └── constants.js             # App-wide constants (roles, JWT config)
     │
     ├── controllers/
-    │   ├── authController.js   # register(), login()
-    │   ├── userController.js   # getProfile(), getAllUsers()
-    │   └── gigController.js    # listGigs(), getGig(), createGig(), updateGig(), deleteGig()
+    │   ├── authController.js        # register(), login() – bcrypt hashing + JWT signing
+    │   ├── userController.js        # getProfile(), getAllUsers()
+    │   ├── gigController.js         # listGigs(), getGig(), createGig(), updateGig(), deleteGig()
+    │   └── transactionController.js # createTransaction(), getIncome(), getAllTransactions()
     │
     ├── middleware/
-    │   ├── auth.js             # authenticate(), authorise() (JWT + RBAC)
-    │   ├── errorHandler.js     # Global error handler (no info leakage)
-    │   ├── rateLimiter.js      # General + strict auth rate limiting
-    │   └── validate.js         # express-validator result handler
+    │   ├── auth.js                  # authenticate() – JWT verification
+    │   │                            # authorise(...roles) – RBAC enforcement
+    │   ├── errorHandler.js          # Global error handler (no stack trace leakage)
+    │   ├── rateLimiter.js           # General (100/15min) + auth-specific (20/15min) rate limiting
+    │   └── validate.js              # express-validator result handler → 422 responses
     │
     ├── routes/
-    │   ├── authRoutes.js       # POST /api/auth/register, /api/auth/login
-    │   ├── userRoutes.js       # GET  /api/users/profile, /api/users
-    │   └── gigRoutes.js        # CRUD /api/gigs
+    │   ├── authRoutes.js            # POST /api/auth/register, /api/auth/login
+    │   ├── userRoutes.js            # GET  /api/users/profile, /api/users
+    │   ├── gigRoutes.js             # CRUD /api/gigs
+    │   └── transactionRoutes.js     # POST /api/transactions, GET /api/transactions/income
     │
     ├── utils/
-    │   ├── logger.js           # Structured logger (console + file)
-    │   ├── userStore.js        # File-based user persistence
-    │   └── gigStore.js         # File-based gig persistence
+    │   ├── logger.js                # Structured logger (console + file, no passwords logged)
+    │   ├── userStore.js             # File-based user persistence
+    │   ├── gigStore.js              # File-based gig persistence
+    │   └── transactionStore.js      # File-based transaction persistence
     │
     └── data/
-        ├── users.json          # User store (git-tracked as empty [])
-        └── gigs.json           # Gig store  (git-tracked as empty [])
+        ├── users.json               # User store (git-tracked as empty [])
+        ├── gigs.json                # Gig store  (git-tracked as empty [])
+        └── transactions.json        # Transaction store (git-tracked as empty [])
 
 tests/
-└── auth.test.js                # Jest + Supertest integration tests
+└── auth.test.js                     # Jest + Supertest integration tests
+```
+
+### Request Lifecycle
+
+Every API request flows through the following pipeline:
+
+```
+Client Request
+  → Helmet (security headers)
+  → CORS (origin check)
+  → Rate Limiter (brute-force protection)
+  → Body Parser (JSON, 10KB limit)
+  → Route matched
+    → express-validator (input validation/sanitisation)
+    → validate middleware (reject 422 if invalid)
+    → authenticate (JWT token verification, if protected route)
+    → authorise (role check, if role-restricted route)
+    → Controller (business logic)
+      → Store (data read/write)
+  → Response sent
+  → errorHandler (catches any unhandled errors — no stack traces leaked)
+```
+
+---
+
+## Input Validation & Error Handling
+
+### Input Validation
+
+All user-supplied input is validated and sanitised **before** reaching any controller or business logic. This is implemented using the `express-validator` library, with validation chains defined directly in the route files.
+
+**How it works:**
+
+1. **Validation chains** in route files (e.g., `authRoutes.js`) define the rules for each field
+2. The **`validate` middleware** (`src/middleware/validate.js`) checks the results
+3. If validation fails → HTTP **422 Unprocessable Entity** with a structured `fields` array
+4. If validation passes → request continues to the controller
+
+**Registration validation rules:**
+
+| Field    | Validation Rules | Sanitisation |
+|----------|------------------|--------------|
+| `name`   | Required, 2–80 characters | Trimmed, HTML-escaped (`.escape()`) |
+| `email`  | Required, valid email format | Trimmed, normalised to lowercase |
+| `password` | Required, ≥8 chars, must contain uppercase, lowercase, number, and special character | None (hashed by bcrypt immediately) |
+| `role`   | Optional, must be `"client"` or `"freelancer"` | Trimmed |
+
+**What this prevents:**
+
+| Attack | How it's prevented |
+|--------|--------------------|
+| **SQL/NoSQL injection** | Sanitisation strips dangerous characters before they reach the data layer |
+| **Cross-site scripting (XSS)** | `.escape()` HTML-encodes special characters like `<`, `>`, `&` in string fields |
+| **bcrypt denial-of-service** | Password length capped at 128 characters (bcrypt has a 72-byte input limit; extremely long inputs without a cap could exhaust CPU) |
+| **Logic errors** | Type checking and length constraints prevent unexpected data from causing failures |
+
+**Example validation error response (422):**
+```json
+{
+  "error": "Validation failed.",
+  "fields": [
+    { "field": "password", "message": "Password must be at least 8 characters." },
+    { "field": "password", "message": "Password must contain at least one uppercase letter." },
+    { "field": "password", "message": "Password must contain at least one number." },
+    { "field": "password", "message": "Password must contain at least one special character." }
+  ]
+}
+```
+
+### Error Handling
+
+The global error handler (`src/middleware/errorHandler.js`) is the **last line of defence** against accidental information disclosure. It ensures that internal system details are **never** leaked to the client.
+
+**What the error handler strips from responses:**
+
+| Information | Leaked? | Why |
+|-------------|---------|-----|
+| Stack traces | ❌ Never | Reveals file paths, line numbers, and internal function names to attackers |
+| File system paths | ❌ Never | Exposes server directory structure |
+| Internal error messages | ⚠️ Dev only | Shown only when `NODE_ENV=development`; hidden in production |
+| Detailed error objects | ❌ Never | Only a generic message is sent to the client |
+
+**How it works:**
+
+- **Client errors (4xx):** The error's own message is returned (e.g., "Invalid email or password")
+- **Server errors (5xx) in production:** A generic `"Internal server error. Please try again later."` is returned
+- **Server errors (5xx) in development:** The error message is returned with a `hint: "Check server logs for details."`
+- **All errors:** Full error details (including stack trace) are logged server-side to `logs/app.log` for debugging
+
+```javascript
+// From errorHandler.js — client never sees the stack trace
+const response = {
+  error: statusCode < 500
+    ? (err.message || 'Request error.')
+    : (isDev ? err.message : 'Internal server error. Please try again later.'),
+};
 ```
 
 ---
