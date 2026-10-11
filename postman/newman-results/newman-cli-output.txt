@@ -1,0 +1,282 @@
+newman
+
+HustleHub+ API – Part 2
+
+□ 1. Health & Security Headers
+└ GET /api/health
+  GET https://localhost:5000/api/health [200 OK, 1.07kB, 61ms]
+  √  Status is 200
+  √  Service is ok
+
+└ Security headers (Helmet + CSP)
+  GET https://localhost:5000/api/health [200 OK, 1.07kB, 6ms]
+  √  Status is 200
+  √  Content-Security-Policy is restrictive
+  √  HSTS enabled for 1 year
+  √  nosniff set
+  √  X-Powered-By hidden
+
+□ 2. Authentication
+└ Register – Freelancer (201)
+  POST https://localhost:5000/api/auth/register [201 Created, 1.59kB, 405ms]
+  √  Status is 201
+  √  Returns a JWT
+  √  Role is freelancer
+  √  No sensitive data leaked
+
+└ Register – Second Freelancer (201)
+  POST https://localhost:5000/api/auth/register [201 Created, 1.6kB, 322ms]
+  √  Status is 201
+  √  Returns a JWT
+
+└ Register – Client (201)
+  POST https://localhost:5000/api/auth/register [201 Created, 1.59kB, 324ms]
+  √  Status is 201
+  √  Role is client
+  √  No sensitive data leaked
+
+└ Register – Duplicate Email (409)
+  POST https://localhost:5000/api/auth/register [409 Conflict, 1.05kB, 8ms]
+  √  Status is 409
+  √  Error message is meaningful
+
+└ Register – Weak Password (422)
+  POST https://localhost:5000/api/auth/register [422 Unprocessable Entity, 1.32kB, 5ms]
+  √  Status is 422
+  √  Field error for password
+
+└ Register – Invalid Email (422)
+  POST https://localhost:5000/api/auth/register [422 Unprocessable Entity, 1.14kB, 7ms]
+  √  Status is 422
+  √  Field error for email
+
+└ Register – Admin Role Not Allowed (422)
+  POST https://localhost:5000/api/auth/register [422 Unprocessable Entity, 1.14kB, 6ms]
+  √  Status is 422
+  √  Field error for role
+
+└ Login – NoSQL Injection Attempt (rejected)
+  POST https://localhost:5000/api/auth/login [422 Unprocessable Entity, 1.14kB, 4ms]
+  √  Rejected with 401 or 422
+  √  No token issued
+
+└ Login – Wrong Password (401)
+  POST https://localhost:5000/api/auth/login [401 Unauthorized, 1.06kB, 311ms]
+  √  Status is 401
+  √  Generic message
+
+└ Login – Unknown Email (401)
+  POST https://localhost:5000/api/auth/login [401 Unauthorized, 1.06kB, 306ms]
+  √  Status is 401
+  √  Same generic message (no user enumeration)
+
+└ Login – Client Valid Credentials (200)
+  POST https://localhost:5000/api/auth/login [200 OK, 1.57kB, 306ms]
+  √  Status is 200
+  √  Returns a JWT
+  √  No sensitive data leaked
+
+└ Login – Admin (200)
+  POST https://localhost:5000/api/auth/login [200 OK, 1.54kB, 307ms]
+  √  Status is 200
+  √  Returns a JWT
+  √  Role is admin
+
+□ 3. Protected Routes (JWT)
+└ Profile – With Token (200)
+  GET https://localhost:5000/api/users/profile [200 OK, 1.22kB, 10ms]
+  √  Status is 200
+  √  Returns own profile
+  √  No sensitive data leaked
+
+└ Profile – No Token (401)
+  GET https://localhost:5000/api/users/profile [401 Unauthorized, 1.07kB, 2ms]
+  √  Status is 401
+  √  Error message is meaningful
+
+└ Profile – Tampered Token (401)
+  GET https://localhost:5000/api/users/profile [401 Unauthorized, 1.06kB, 4ms]
+  √  Status is 401
+  √  Error message is meaningful
+
+□ 4. Gigs (Freelancer)
+└ Create Gig – Freelancer (201)
+  POST https://localhost:5000/api/gigs [201 Created, 1.34kB, 10ms]
+  √  Status is 201
+  √  Gig has an id and price
+
+└ Create Gig – Client Forbidden (403)
+  POST https://localhost:5000/api/gigs [403 Forbidden, 1.08kB, 5ms]
+  √  Status is 403
+  √  Error message is meaningful
+
+└ Create Gig – Invalid Input (422)
+  POST https://localhost:5000/api/gigs [422 Unprocessable Entity, 1.35kB, 6ms]
+  √  Status is 422
+  √  Field error for title
+  √  Field error for price
+
+└ Create Gig – XSS Payload Is Escaped (201)
+  POST https://localhost:5000/api/gigs [201 Created, 1.37kB, 8ms]
+  √  Status is 201
+  √  HTML is escaped before storage
+
+└ List Gigs – Any Authenticated User (200)
+  GET https://localhost:5000/api/gigs [200 OK, 1.69kB, 18ms]
+  √  Status is 200
+  √  Contains the new gig
+  √  Freelancer shown by name only
+
+└ List Gigs – No Token (401)
+  GET https://localhost:5000/api/gigs [401 Unauthorized, 1.07kB, 2ms]
+  √  Status is 401
+
+└ Get Gig By Id (200)
+  GET https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1a [200 OK, 1.34kB, 9ms]
+  √  Status is 200
+  √  Correct gig
+
+└ Get Gig – Invalid Id (422)
+  GET https://localhost:5000/api/gigs/not-a-valid-id [422 Unprocessable Entity, 1.12kB, 4ms]
+  √  Status is 422
+
+└ My Gigs – Freelancer (200)
+  GET https://localhost:5000/api/gigs/mine [200 OK, 1.64kB, 7ms]
+  √  Status is 200
+  √  Only own gigs (2)
+
+└ My Gigs – Client Forbidden (403)
+  GET https://localhost:5000/api/gigs/mine [403 Forbidden, 1.08kB, 5ms]
+  √  Status is 403
+
+└ Update Gig – Owner (200)
+  PUT https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1a [200 OK, 1.33kB, 10ms]
+  √  Status is 200
+  √  Price and title updated
+
+└ Update Gig – Another Freelancer (403)
+  PUT https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1a [403 Forbidden, 1.06kB, 7ms]
+  √  Status is 403
+  √  Error message is meaningful
+
+└ Update Gig – Invalid Input (422)
+  PUT https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1a [422 Unprocessable Entity, 1.15kB, 14ms]
+  √  Status is 422
+  √  Field error for price
+
+□ 5. Bookings & Transactions
+└ Book Gig – Client (201)
+  POST https://localhost:5000/api/transactions [201 Created, 1.38kB, 10ms]
+  √  Status is 201
+  √  Transaction completed (simulated payment)
+  √  Amount taken from the gig, not the request
+  √  Linked to gig, client and freelancer
+
+└ Book Gig – Freelancer Forbidden (403)
+  POST https://localhost:5000/api/transactions [403 Forbidden, 1.08kB, 5ms]
+  √  Status is 403
+
+└ Book Gig – No Token (401)
+  POST https://localhost:5000/api/transactions [401 Unauthorized, 1.06kB, 3ms]
+  √  Status is 401
+
+└ Book Gig – Non-existent Gig (404)
+  POST https://localhost:5000/api/transactions [404 Not Found, 1.04kB, 6ms]
+  √  Status is 404
+  √  Error message is meaningful
+
+└ Book Gig – Invalid Gig Id (422)
+  POST https://localhost:5000/api/transactions [422 Unprocessable Entity, 1.13kB, 5ms]
+  √  Status is 422
+  √  Field error for gigId
+
+└ My Bookings – Client (200)
+  GET https://localhost:5000/api/transactions/mine [200 OK, 1.48kB, 10ms]
+  √  Status is 200
+  √  Client sees their booking
+
+└ My Bookings – Freelancer Received (200)
+  GET https://localhost:5000/api/transactions/mine [200 OK, 1.48kB, 9ms]
+  √  Status is 200
+  √  Freelancer sees booking from client
+
+└ My Bookings – Other Freelancer Sees None (200)
+  GET https://localhost:5000/api/transactions/mine [200 OK, 1.04kB, 6ms]
+  √  Status is 200
+  √  No access to other freelancers' bookings
+
+└ Income Summary – Freelancer (200)
+  GET https://localhost:5000/api/transactions/income [200 OK, 1.46kB, 9ms]
+  √  Status is 200
+  √  Income tracked for the right freelancer
+  √  Estimated tax at 25%
+
+└ Income Summary – Client Forbidden (403)
+  GET https://localhost:5000/api/transactions/income [403 Forbidden, 1.08kB, 5ms]
+  √  Status is 403
+
+□ 6. Admin
+└ List Users – Admin (200)
+  GET https://localhost:5000/api/users [200 OK, 2.4kB, 7ms]
+  √  Status is 200
+  √  Users returned
+  √  No sensitive data leaked
+
+└ List Users – Client Forbidden (403)
+  GET https://localhost:5000/api/users [403 Forbidden, 1.08kB, 6ms]
+  √  Status is 403
+
+└ All Transactions – Admin (200)
+  GET https://localhost:5000/api/transactions [200 OK, 1.91kB, 11ms]
+  √  Status is 200
+  √  Includes this run's booking
+
+└ All Transactions – Freelancer Forbidden (403)
+  GET https://localhost:5000/api/transactions [403 Forbidden, 1.08kB, 4ms]
+  √  Status is 403
+
+└ Delete Any Gig – Admin (200)
+  DELETE https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1c [200 OK, 1.04kB, 10ms]
+  √  Status is 200
+
+□ 7. Gig Deletion (Ownership)
+└ Delete Gig – Another Freelancer (403)
+  DELETE https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1a [403 Forbidden, 1.08kB, 6ms]
+  √  Status is 403
+
+└ Delete Gig – Client (403)
+  DELETE https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1a [403 Forbidden, 1.08kB, 5ms]
+  √  Status is 403
+
+└ Delete Gig – Owner (200)
+  DELETE https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1a [200 OK, 1.04kB, 7ms]
+  √  Status is 200
+
+└ Get Deleted Gig (404)
+  GET https://localhost:5000/api/gigs/6acbecb24b2e78a81b307d1a [404 Not Found, 1.05kB, 7ms]
+  √  Status is 404
+
+└ Booking Record Kept After Gig Deletion (200)
+  GET https://localhost:5000/api/transactions/mine [200 OK, 1.48kB, 9ms]
+  √  Status is 200
+  √  Transaction history preserved
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                50 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                50 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                50 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │               102 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 6.7s                                        │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 12.4kB (approx)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 52ms [min: 2ms, max: 405ms, s.d.: 111ms] │
+└─────────────────────────────────────────────────────────────────┘
