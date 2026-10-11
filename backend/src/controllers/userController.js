@@ -7,16 +7,16 @@
  * All routes in this controller require a valid JWT (enforced at router level).
  */
 
-const userStore = require('../utils/userStore');
-const logger    = require('../utils/logger');
+const User   = require('../models/User');
+const logger = require('../utils/logger');
 
 /**
  * GET /api/users/profile
  * Returns the authenticated user's profile (no passwordHash).
  */
-function getProfile(req, res, next) {
+async function getProfile(req, res, next) {
   try {
-    const user = userStore.findById(req.user.id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
@@ -33,9 +33,9 @@ function getProfile(req, res, next) {
  * GET /api/users  (Admin only)
  * Returns a list of all users (safe records only).
  */
-function getAllUsers(req, res, next) {
+async function getAllUsers(req, res, next) {
   try {
-    const users = userStore.findAll();
+    const users = await User.find().sort({ createdAt: -1 });
     return res.status(200).json({ count: users.length, users });
   } catch (err) {
     next(err);

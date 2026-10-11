@@ -16,10 +16,9 @@
 
 const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
 
-const userStore             = require('../utils/userStore');
-const logger                = require('../utils/logger');
+const User                    = require('../models/User');
+const logger                  = require('../utils/logger');
 const { ROLES, JWT: JWT_CFG } = require('../config/constants');
 
 const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 12;
@@ -27,9 +26,9 @@ const JWT_SECRET  = process.env.JWT_SECRET;
 const JWT_EXPIRES = process.env.JWT_EXPIRES_IN || '1h';
 
 // Dummy hash used to prevent timing-based user enumeration attacks.
-// bcrypt.compare will run even when the user is not found, making
-// the response time consistent whether the user exists or not.
-const DUMMY_HASH = '$2b$12$invalidhashfortimingnormalizationpurposesonly';
+// It must be a REAL bcrypt hash at the same cost as stored hashes –
+// bcrypt rejects malformed hashes instantly, which would defeat the purpose.
+const DUMMY_HASH = bcrypt.hashSync('timing-normalisation-dummy', SALT_ROUNDS);
 
 // ── Register ───────────────────────────────────────────────────────────────
 
@@ -41,18 +40,20 @@ async function register(req, res, next) {
   try {
     const { name, email, password, role } = req.body;
 
+    if (await User.exists({ email })) {
+      return res.status(409).json({ error: 'Email already registered.' });
+    }
+
     // Hash the password – NEVER store plain text
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    const user = userStore.create({
-      id: uuidv4(),
-      name:         name.trim(),
-      email:        email.toLowerCase().trim(),
+    const user = await User.create({
+      name,
+      email,
       passwordHash,
-      role:         role || ROLES.CLIENT,
+      role: role || ROLES.CLIENT,
     });
 
-    // Generate JWT
     const token = signToken(user);
 
     logger.info(`User registered: ${user.id} (${user.role})`);
@@ -60,12 +61,12 @@ async function register(req, res, next) {
     return res.status(201).json({
       message: 'Registration successful.',
       token,
-      user,
+      user: user.toJSON(), // toJSON strips passwordHash
     });
   } catch (err) {
-    // 409 Conflict – email already exists
-    if (err.statusCode === 409) {
-      return res.status(409).json({ error: err.message });
+    // Unique index race: two registrations with the same email at once
+    if (err.code === 11000) {
+      return res.status(409).json({ error: 'Email already registered.' });
     }
     next(err);
   }
@@ -81,8 +82,8 @@ async function login(req, res, next) {
   try {
     const { email, password } = req.body;
 
-    // Look up user (includes passwordHash for comparison)
-    const user = userStore.findByEmail(email);
+    // passwordHash is select:false – request it explicitly for comparison only
+    const user = await User.findOne({ email }).select('+passwordHash');
 
     // Compare using bcrypt even if user not found (timing normalisation)
     const hashToCompare = user ? user.passwordHash : DUMMY_HASH;
@@ -94,16 +95,14 @@ async function login(req, res, next) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Strip passwordHash before including in response
-    const safeUser = userStore.omitPassword(user);
-    const token    = signToken(safeUser);
+    const token = signToken(user);
 
-    logger.info(`User logged in: ${safeUser.id} (${safeUser.role})`);
+    logger.info(`User logged in: ${user.id} (${user.role})`);
 
     return res.status(200).json({
       message: 'Login successful.',
       token,
-      user: safeUser,
+      user: user.toJSON(),
     });
   } catch (err) {
     next(err);
@@ -114,7 +113,7 @@ async function login(req, res, next) {
 
 /**
  * Signs a JWT containing minimal user claims.
- * @param {object} user – safe user object (no passwordHash)
+ * @param {object} user – user document
  * @returns {string} signed JWT
  */
 function signToken(user) {

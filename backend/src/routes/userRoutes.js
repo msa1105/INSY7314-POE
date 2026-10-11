@@ -10,6 +10,7 @@
 const { Router } = require('express');
 const { getProfile, getAllUsers } = require('../controllers/userController');
 const { authenticate, authorise } = require('../middleware/auth');
+const { ROLES } = require('../config/constants');
 
 const router = Router();
 
@@ -25,6 +26,6 @@ router.get('/profile', authenticate, getProfile);
  * @desc    Returns all users – admin management
  * @access  Private (admin only)
  */
-router.get('/', authenticate, authorise('admin'), getAllUsers);
+router.get('/', authenticate, authorise(ROLES.ADMIN), getAllUsers);
 
 module.exports = router;

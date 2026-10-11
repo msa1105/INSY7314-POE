@@ -16,6 +16,7 @@ const { body }   = require('express-validator');
 const { register, login } = require('../controllers/authController');
 const validate             = require('../middleware/validate');
 const { authLimiter }      = require('../middleware/rateLimiter');
+const { PASSWORD_POLICY, ROLES } = require('../config/constants');
 
 const router = Router();
 
@@ -39,7 +40,8 @@ const registerValidation = [
 
   body('password')
     .notEmpty().withMessage('Password is required.')
-    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters.')
+    .isLength({ min: PASSWORD_POLICY.MIN_LENGTH }).withMessage('Password must be at least 8 characters.')
+    .isLength({ max: PASSWORD_POLICY.MAX_LENGTH }).withMessage('Password must be at most 128 characters.') // Prevent bcrypt DoS
     .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter.')
     .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter.')
     .matches(/[0-9]/).withMessage('Password must contain at least one number.')
@@ -47,7 +49,7 @@ const registerValidation = [
 
   body('role')
     .optional()
-    .isIn(['client', 'freelancer']).withMessage('Role must be "client" or "freelancer".')
+    .isIn([ROLES.CLIENT, ROLES.FREELANCER]).withMessage('Role must be "client" or "freelancer".') // admin cannot self-register
     .trim(),
 ];
 
@@ -60,7 +62,7 @@ const loginValidation = [
 
   body('password')
     .notEmpty().withMessage('Password is required.')
-    .isLength({ max: 128 }).withMessage('Password too long.'), // Prevent bcrypt DoS
+    .isLength({ max: PASSWORD_POLICY.MAX_LENGTH }).withMessage('Password too long.'), // Prevent bcrypt DoS
 ];
 
 // ── Routes ─────────────────────────────────────────────────────────────────
