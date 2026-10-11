@@ -1,4 +1,0 @@
-{
-  "watch": ["src/", "server.js"],
-  "ignore": ["logs/*", "*.log", ".mongo-data/*"]
-}

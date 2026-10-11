@@ -19,4 +19,3 @@ ssl/
 
 # Dev tools
 .eslintrc*
-nodemon.json

@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
+    "dev": "node --watch server.js",
     "db:local": "node scripts/local-db.js",
     "create-admin": "node scripts/create-admin.js",
     "generate-certs": "node generate-certs.js",
@@ -41,10 +41,9 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "eslint": "^9.9.0",
-    "jest": "^29.7.0",
+    "jest": "^30.5.2",
     "mongodb-memory-server": "^10.4.3",
-    "nodemon": "^3.1.4",
-    "selfsigned": "^2.4.1",
+    "selfsigned": "^5.5.0",
     "supertest": "^7.0.0"
   },
   "jest": {
