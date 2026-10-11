@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:report": "vitest run --reporter=verbose --reporter=junit --outputFile.junit=test-results/junit.xml",
     "lint": "oxlint src"
   },
   "dependencies": {

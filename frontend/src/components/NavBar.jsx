@@ -31,7 +31,7 @@ export default function NavBar() {
       <div className="navbar__inner">
         <NavLink to={user ? '/gigs' : '/login'} className="brand">
           <span className="brand__mark" aria-hidden="true">H</span>
-          HustleHub<span className="brand__plus">+</span>
+          <span>HustleHub<span className="brand__plus">+</span></span>
         </NavLink>
 
         {user ? (

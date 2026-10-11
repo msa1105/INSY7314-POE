@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="26" failures="0" errors="0" time="9.0042459">
+    <testsuite name="src/test/GigForm.test.jsx" timestamp="2026-10-11T20:09:16.383Z" hostname="Asus-Vivobook-Ultra" tests="3" failures="0" errors="0" skipped="0" time="1.784996">
+        <testcase classname="src/test/GigForm.test.jsx" name="GigForm &gt; shows field errors for invalid input and does not submit" time="0.3917255">
+        </testcase>
+        <testcase classname="src/test/GigForm.test.jsx" name="GigForm &gt; submits trimmed values with a numeric price and resets" time="1.3275233">
+        </testcase>
+        <testcase classname="src/test/GigForm.test.jsx" name="GigForm &gt; edit mode pre-fills decoded values and shows server validation errors" time="0.0608545">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/test/GigsPage.test.jsx" timestamp="2026-10-11T20:09:16.419Z" hostname="Asus-Vivobook-Ultra" tests="5" failures="0" errors="0" skipped="0" time="0.6562068">
+        <testcase classname="src/test/GigsPage.test.jsx" name="GigsPage &gt; client sees gigs with Book buttons; escaped text is shown as plain text" time="0.2537396">
+        </testcase>
+        <testcase classname="src/test/GigsPage.test.jsx" name="GigsPage &gt; client books a gig through the confirmation step" time="0.1190202">
+        </testcase>
+        <testcase classname="src/test/GigsPage.test.jsx" name="GigsPage &gt; cancelling the confirmation does not create a booking" time="0.140128">
+        </testcase>
+        <testcase classname="src/test/GigsPage.test.jsx" name="GigsPage &gt; freelancers cannot book gigs (no Book button)" time="0.0152798">
+        </testcase>
+        <testcase classname="src/test/GigsPage.test.jsx" name="GigsPage &gt; shows a friendly error if the booking is rate limited" time="0.1233043">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/test/LoginPage.test.jsx" timestamp="2026-10-11T20:09:16.421Z" hostname="Asus-Vivobook-Ultra" tests="5" failures="0" errors="0" skipped="0" time="1.999187">
+        <testcase classname="src/test/LoginPage.test.jsx" name="LoginPage &gt; renders the email and password fields and a submit button" time="0.2563624">
+        </testcase>
+        <testcase classname="src/test/LoginPage.test.jsx" name="LoginPage &gt; shows validation errors and does not call the API when fields are empty" time="0.0787292">
+        </testcase>
+        <testcase classname="src/test/LoginPage.test.jsx" name="LoginPage &gt; logs in with valid credentials and redirects to the gigs page" time="0.5453305">
+        </testcase>
+        <testcase classname="src/test/LoginPage.test.jsx" name="LoginPage &gt; shows the server&apos;s generic error on bad credentials and clears the password" time="0.5637996">
+        </testcase>
+        <testcase classname="src/test/LoginPage.test.jsx" name="LoginPage &gt; never shows raw server error details on a 500" time="0.5502391">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/test/ProtectedRoute.test.jsx" timestamp="2026-10-11T20:09:16.423Z" hostname="Asus-Vivobook-Ultra" tests="4" failures="0" errors="0" skipped="0" time="0.1220628">
+        <testcase classname="src/test/ProtectedRoute.test.jsx" name="ProtectedRoute &gt; redirects logged-out users to /login" time="0.0926106">
+        </testcase>
+        <testcase classname="src/test/ProtectedRoute.test.jsx" name="ProtectedRoute &gt; redirects users with the wrong role to /gigs" time="0.0106882">
+        </testcase>
+        <testcase classname="src/test/ProtectedRoute.test.jsx" name="ProtectedRoute &gt; renders the page for the allowed role" time="0.0062611">
+        </testcase>
+        <testcase classname="src/test/ProtectedRoute.test.jsx" name="ProtectedRoute &gt; treats an expired token as logged out" time="0.0064851">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/test/RegisterPage.test.jsx" timestamp="2026-10-11T20:09:16.424Z" hostname="Asus-Vivobook-Ultra" tests="4" failures="0" errors="0" skipped="0" time="4.4202512">
+        <testcase classname="src/test/RegisterPage.test.jsx" name="RegisterPage &gt; rejects a weak password before contacting the server" time="1.1812964">
+        </testcase>
+        <testcase classname="src/test/RegisterPage.test.jsx" name="RegisterPage &gt; flags mismatched passwords" time="1.0487753">
+        </testcase>
+        <testcase classname="src/test/RegisterPage.test.jsx" name="RegisterPage &gt; registers a freelancer with the chosen role and goes to My gigs" time="1.1330613">
+        </testcase>
+        <testcase classname="src/test/RegisterPage.test.jsx" name="RegisterPage &gt; shows the server error when the email is already registered" time="1.0493716">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/test/utils.test.js" timestamp="2026-10-11T20:09:16.425Z" hostname="Asus-Vivobook-Ultra" tests="5" failures="0" errors="0" skipped="0" time="0.0215421">
+        <testcase classname="src/test/utils.test.js" name="validation helpers &gt; checkPassword enforces the same policy as the API" time="0.006059">
+        </testcase>
+        <testcase classname="src/test/utils.test.js" name="validation helpers &gt; validateRegister only allows client or freelancer roles" time="0.0015926">
+        </testcase>
+        <testcase classname="src/test/utils.test.js" name="validation helpers &gt; validateGig checks price range" time="0.0028652">
+        </testcase>
+        <testcase classname="src/test/utils.test.js" name="format helpers &gt; decodeEntities reverses the API&apos;s HTML escaping" time="0.0016399">
+        </testcase>
+        <testcase classname="src/test/utils.test.js" name="format helpers &gt; formatRand formats South African Rand" time="0.0019215">
+        </testcase>
+    </testsuite>
+</testsuites>
