@@ -14,8 +14,9 @@ const path  = require('path');
 // Load environment variables before importing app
 require('dotenv').config();
 
-const app    = require('./src/app');
-const logger = require('./src/utils/logger');
+const app           = require('./src/app');
+const logger        = require('./src/utils/logger');
+const { connectDB } = require('./src/config/db');
 
 const PORT         = process.env.PORT || 5000;
 const SSL_KEY_PATH  = process.env.SSL_KEY_PATH  || './ssl/server.key';
@@ -37,10 +38,18 @@ try {
 // ── Start HTTPS Server ─────────────────────────────────────────────────────
 const server = https.createServer(sslOptions, app);
 
-server.listen(PORT, () => {
-  logger.info(`HustleHub+ API running on https://localhost:${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Connect to MongoDB first – the API never accepts requests without a database
+connectDB()
+  .then(() => {
+    server.listen(PORT, () => {
+      logger.info(`HustleHub+ API running on https://localhost:${PORT}`);
+      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  })
+  .catch((err) => {
+    logger.error(`Failed to connect to MongoDB: ${err.message}`);
+    process.exit(1);
+  });
 
 // ── Graceful Shutdown ──────────────────────────────────────────────────────
 process.on('SIGTERM', () => {

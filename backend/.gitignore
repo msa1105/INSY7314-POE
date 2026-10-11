@@ -5,3 +5,6 @@ ssl/server.cert
 coverage/
 *.log
 logs/
+
+# MongoDB local data (npm run db:local)
+.mongo-data/
