@@ -1,0 +1,26 @@
+$kind: collection
+description: |-
+  Postman collection for HustleHub+ Part 1 – Secure Backend Foundations.
+
+  Covers:
+
+  - User registration (client and freelancer)
+      
+  - Login with token generation
+      
+  - Protected profile route
+      
+  - Invalid/edge-case scenarios
+      
+  - Gig management (freelancer RBAC)
+      
+  - Booking / transaction creation (client)
+      
+  - Income + estimated tax summary (freelancer)
+      
+
+  Base URL variable: {{baseUrl}} = [https://localhost:5000](https://localhost:5000)  
+  Token variable: {{token}} – automatically set by the Login request.
+variables:
+  baseUrl: https://localhost:5000
+  token: ""

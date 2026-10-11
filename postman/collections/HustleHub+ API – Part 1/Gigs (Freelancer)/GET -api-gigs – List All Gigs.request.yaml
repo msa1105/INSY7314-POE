@@ -1,0 +1,13 @@
+$kind: http-request
+name: GET /api/gigs – List All Gigs
+url: "{{baseUrl}}/api/gigs"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200', () => pm.response.to.have.status(200));
+      pm.test('Gigs array present', () => pm.expect(pm.response.json()).to.have.property('gigs'));
+    language: text/javascript
+order: 2000

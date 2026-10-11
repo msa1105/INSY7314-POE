@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Test User",
+      "email": "not-an-email",
+      "password": "SecurePass1!",
+      "role": "client"
+    }
+scripts:
+  - type: afterResponse
+    code: pm.test('Status 422', () => pm.response.to.have.status(422));
+    language: text/javascript
+order: 5000

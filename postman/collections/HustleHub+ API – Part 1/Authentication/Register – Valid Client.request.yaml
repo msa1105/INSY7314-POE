@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Alice Dlamini",
+      "email": "alice@hustlehub.test",
+      "password": "SecurePass1!",
+      "role": "client"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 201', () => pm.response.to.have.status(201));
+      pm.test('Token returned', () => { const j = pm.response.json(); pm.expect(j).to.have.property('token'); });
+      pm.test('No passwordHash exposed', () => { const j = pm.response.json(); pm.expect(j.user).to.not.have.property('passwordHash'); });
+      pm.collectionVariables.set('token', pm.response.json().token);
+    language: text/javascript
+order: 1000

@@ -87,6 +87,26 @@ app.use('/api', rateLimiter);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 
+// ── Root Endpoint ──────────────────────────────────────────────────────────
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    status:  'ok',
+    service: 'HustleHub+ API',
+    message: 'HustleHub+ Secure Backend API is running.',
+    version: '1.0.0',
+    endpoints: {
+      health:       'GET  /api/health',
+      register:     'POST /api/auth/register',
+      login:        'POST /api/auth/login',
+      profile:      'GET  /api/users/profile',
+      gigs:         'GET  /api/gigs',
+      createGig:    'POST /api/gigs',
+      transactions: 'POST /api/transactions',
+      income:       'GET  /api/transactions/income'
+    }
+  });
+});
+
 // ── Health Check ───────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
   res.status(200).json({

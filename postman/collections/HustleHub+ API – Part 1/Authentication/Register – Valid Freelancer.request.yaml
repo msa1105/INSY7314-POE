@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Bob Nkosi",
+      "email": "bob@hustlehub.test",
+      "password": "FreelanceR9@",
+      "role": "freelancer"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 201', () => pm.response.to.have.status(201));
+      pm.test('Role is freelancer', () => { pm.expect(pm.response.json().user.role).to.eql('freelancer'); });
+    language: text/javascript
+order: 2000

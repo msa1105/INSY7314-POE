@@ -1,0 +1,11 @@
+# Use this workspace to collaborate
+workspace:
+  id: f68f3878-46a8-43c8-8d2b-4fcebe330e3d
+
+localResources:
+  collections:
+    - ../hustlehub_api.postman_collection.json
+
+cloudResources:
+  collections:
+    ../postman/collections/HustleHub+ API – Part 1: 7c8e7dbe-532c-4729-8c3a-f003e82349f4

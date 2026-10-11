@@ -1,0 +1,24 @@
+$kind: http-request
+name: POST /api/gigs – Create Gig (freelancer token required)
+url: "{{baseUrl}}/api/gigs"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+body:
+  type: text
+  content: |-
+    {
+      "title": "Professional Logo Design",
+      "description": "I will create a stunning logo for your brand.",
+      "price": 500,
+      "category": "Design"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 201 (freelancer) or 403 (client)', () => {
+        pm.expect([201, 403]).to.include(pm.response.code);
+      });
+    language: text/javascript
+order: 1000
