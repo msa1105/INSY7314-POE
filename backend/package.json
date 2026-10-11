@@ -11,7 +11,7 @@
     "generate-certs": "node generate-certs.js",
     "test": "cross-env NODE_ENV=test jest --coverage --forceExit --runInBand",
     "test:watch": "cross-env NODE_ENV=test jest --watch --runInBand",
-    "test:api": "npx --yes newman@6 run ../postman/hustlehub-api.postman_collection.json -e ../postman/hustlehub-local.postman_environment.json --insecure --reporters cli,json,junit --reporter-json-export ../postman/newman-results/newman-report.json --reporter-junit-export ../postman/newman-results/newman-report.xml",
+    "test:api": "node scripts/run-newman.js",
     "lint": "eslint src/ tests/ --ext .js"
   },
   "keywords": [

@@ -25,7 +25,7 @@ async function main() {
   });
 
   console.log(`Local MongoDB running at ${mongod.getUri()}`);
-  console.log('Set MONGO_URI=mongodb://127.0.0.1:27017/hustlehub in backend/.env');
+  console.log(`Set MONGO_URI=mongodb://127.0.0.1:${PORT}/hustlehub in backend/.env`);
   console.log('Press Ctrl+C to stop.');
 
   const stop = async () => {
