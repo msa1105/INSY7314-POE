@@ -25,6 +25,15 @@ function errorHandler(err, req, res, next) {
   // Always log the full error internally (never sent to client)
   logger.error(`[${req.method}] ${req.originalUrl} – ${err.stack || err.message}`);
 
+  // Map Mongoose errors to client errors without exposing schema details
+  if (err.name === 'ValidationError') {
+    err.statusCode = 422;
+    err.message    = 'Validation failed.';
+  } else if (err.name === 'CastError') {
+    err.statusCode = 400;
+    err.message    = 'Invalid identifier or value.';
+  }
+
   // Determine HTTP status
   const statusCode = err.statusCode || err.status || 500;
 

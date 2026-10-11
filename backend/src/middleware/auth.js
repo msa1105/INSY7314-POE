@@ -17,6 +17,7 @@
 
 const jwt    = require('jsonwebtoken');
 const logger = require('../utils/logger');
+const { JWT: JWT_CFG } = require('../config/constants');
 
 /**
  * authenticate – Middleware that validates a JWT Bearer token.
@@ -33,7 +34,9 @@ function authenticate(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
-      algorithms: ['HS256'], // Prevent algorithm confusion attacks
+      algorithms: [JWT_CFG.ALGORITHM], // Prevent algorithm confusion attacks
+      issuer:     JWT_CFG.ISSUER,      // Reject tokens minted for other services
+      audience:   JWT_CFG.AUDIENCE,
     });
 
     req.user = decoded; // { id, email, role, iat, exp }

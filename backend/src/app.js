@@ -9,9 +9,10 @@
  *  3. Morgan   – HTTP request logging
  *  4. Rate Limiter – brute-force protection
  *  5. Body Parser  – JSON parsing with size limit
- *  6. Routes
- *  7. 404 Handler
- *  8. Global Error Handler (no internal details leaked)
+ *  6. Sanitize     – strips NoSQL operator keys ($ne, $gt, ...)
+ *  7. Routes
+ *  8. 404 Handler
+ *  9. Global Error Handler (no internal details leaked)
  */
 
 // Load environment variables first (before any module that reads process.env)
@@ -24,6 +25,7 @@ const cors         = require('cors');
 const morgan       = require('morgan');
 
 const rateLimiter  = require('./middleware/rateLimiter');
+const sanitize     = require('./middleware/sanitize');
 const authRoutes   = require('./routes/authRoutes');
 const userRoutes   = require('./routes/userRoutes');
 const gigRoutes    = require('./routes/gigRoutes');
@@ -39,10 +41,14 @@ const app = express();
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc:  ["'self'"],
-      styleSrc:   ["'self'"],
-      imgSrc:     ["'self'", 'data:'],
+      defaultSrc:     ["'self'"],
+      scriptSrc:      ["'self'"],
+      styleSrc:       ["'self'"],
+      imgSrc:         ["'self'", 'data:'],
+      objectSrc:      ["'none'"], // No plugins (Flash/Java) ever
+      frameAncestors: ["'none'"], // API responses can never be framed (clickjacking)
+      baseUri:        ["'self'"],
+      formAction:     ["'self'"],
     },
   },
   hsts: {
@@ -53,10 +59,12 @@ app.use(helmet({
 }));
 
 // ── CORS ───────────────────────────────────────────────────────────────────
-// Only allow requests from the configured frontend origin.
-const allowedOrigins = [
-  process.env.CORS_ORIGIN || 'https://localhost:3000',
-];
+// Only allow requests from the configured frontend origin(s).
+// CORS_ORIGIN may hold a comma-separated list.
+const allowedOrigins = (process.env.CORS_ORIGIN || 'https://localhost:3000')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -64,7 +72,9 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      const err = new Error('Origin not allowed by CORS policy.');
+      err.statusCode = 403;
+      callback(err);
     }
   },
   methods:     ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -87,6 +97,10 @@ app.use('/api', rateLimiter);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 
+// ── NoSQL Injection Protection ─────────────────────────────────────────────
+// Strip "$operator" and "dotted.path" keys before any route sees the input.
+app.use(sanitize);
+
 // ── Root Endpoint ──────────────────────────────────────────────────────────
 app.get('/', (_req, res) => {
   res.status(200).json({
@@ -100,8 +114,10 @@ app.get('/', (_req, res) => {
       login:        'POST /api/auth/login',
       profile:      'GET  /api/users/profile',
       gigs:         'GET  /api/gigs',
+      myGigs:       'GET  /api/gigs/mine',
       createGig:    'POST /api/gigs',
-      transactions: 'POST /api/transactions',
+      book:         'POST /api/transactions',
+      myBookings:   'GET  /api/transactions/mine',
       income:       'GET  /api/transactions/income'
     }
   });
