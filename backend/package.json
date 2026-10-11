@@ -1,17 +1,28 @@
 {
   "name": "hustlehub-backend",
   "version": "1.0.0",
-  "description": "HustleHub+ Secure Freelance Marketplace Backend API",
+  "description": "HustleHub+ Secure Freelance Marketplace Backend API (Express + MongoDB)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "db:local": "node scripts/local-db.js",
+    "create-admin": "node scripts/create-admin.js",
     "generate-certs": "node generate-certs.js",
     "test": "cross-env NODE_ENV=test jest --coverage --forceExit --runInBand",
     "test:watch": "cross-env NODE_ENV=test jest --watch --runInBand",
+    "test:api": "npx --yes newman@6 run ../postman/hustlehub-api.postman_collection.json -e ../postman/hustlehub-local.postman_environment.json --insecure --reporters cli,json,junit --reporter-json-export ../postman/newman-results/newman-report.json --reporter-junit-export ../postman/newman-results/newman-report.xml",
     "lint": "eslint src/ tests/ --ext .js"
   },
-  "keywords": ["freelance", "marketplace", "api", "secure", "nodejs", "express", "jwt"],
+  "keywords": [
+    "freelance",
+    "marketplace",
+    "api",
+    "secure",
+    "nodejs",
+    "express",
+    "jwt"
+  ],
   "author": "HustleHub+ Team",
   "license": "ISC",
   "dependencies": {
@@ -23,6 +34,7 @@
     "express-validator": "^7.1.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.24.5",
     "morgan": "^1.10.0",
     "uuid": "^11.0.0"
   },
@@ -30,6 +42,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^9.9.0",
     "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.4.3",
     "nodemon": "^3.1.4",
     "selfsigned": "^2.4.1",
     "supertest": "^7.0.0"
@@ -39,6 +52,9 @@
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
       "src/**/*.js"
+    ],
+    "setupFiles": [
+      "<rootDir>/tests/setupEnv.js"
     ]
   },
   "engines": {
