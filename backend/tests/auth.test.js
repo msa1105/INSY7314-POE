@@ -14,14 +14,10 @@
  */
 
 const request = require('supertest');
-const app     = require('../src/app');
-const fs      = require('fs');
-const path    = require('path');
+const { app, useTestDatabase } = require('./helpers');
 
-// Reset the user store before each test to ensure isolation
-const DATA_FILE = path.join(__dirname, '../src/data/users.json');
-beforeEach(() => fs.writeFileSync(DATA_FILE, '[]', 'utf8'));
-afterAll(()  => fs.writeFileSync(DATA_FILE, '[]', 'utf8'));
+// Fresh in-memory MongoDB; collections are cleared after each test
+useTestDatabase();
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
