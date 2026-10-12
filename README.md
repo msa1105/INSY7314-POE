@@ -143,6 +143,7 @@ INSY7314/
 │   ├── Postman Part1/               # Part 1 Postman evidence
 │   └── Postman Part2/               # Part 2: one screenshot per request (63)
 ├── docker-compose.yml               # API + MongoDB containers
+├── ATTRIBUTIONS.md                  # Every reference, image credit, library and tool
 └── CHANGELOG.md                     # Part 2 change log
 ```
 
@@ -528,7 +529,7 @@ Part 1 (Secure Backend Foundations) Postman screenshots are kept in [`images/Pos
 
 ## References
 
-The same references appear as comments next to the code they informed.
+The same references appear as comments next to the code they informed. The complete list, including image credits, design inspiration and every library and tool with its licence, is in [`ATTRIBUTIONS.md`](ATTRIBUTIONS.md).
 
 | Source | Used in |
 |---|---|

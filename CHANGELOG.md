@@ -2,13 +2,18 @@
 
 ## Now / Next / Known issues
 
-- **Now:** UI polish with icons, stock photos and references. Awaiting review.
+- **Now:** Screenshots retaken for the polished UI, full attributions list added. Pushed.
 - **Next:**
   - Record the Part 2 demo video and add its link to the README.
-  - Retake the `images/app/` screenshots so they show the polished UI.
 - **Known issues:**
   - The frontend CSP is only sent by `npm run preview`, not `npm run dev` (documented in the README).
   - The git-native v3 collection under `postman/collections/` still only covers Part 1. The JSON collection is the complete one.
+
+## 2026-10-12 – New screenshots and full attributions
+
+- **Screenshots:** all ten `images/app/` screenshots were retaken with the polished UI.
+- **Table fix:** table text now wraps (date, amount, status and actions stay on one line), so **Decline** is no longer cut off on Requests & income.
+- **`ATTRIBUTIONS.md`:** one list of all 30 references (code, UI components, images, design inspiration) plus every library with its version and licence, and the tools used. All links tested. The README links to it.
 
 ## 2026-10-12 – UI polish, icons and stock photos
 
