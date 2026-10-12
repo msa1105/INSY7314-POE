@@ -594,7 +594,7 @@ To use the collection in Postman: import the collection and `postman/hustlehub-l
 
 Part 1 video: [https://youtu.be/tYWpZ3LTc-E](https://youtu.be/tYWpZ3LTc-E)
 
-Part 2 video: [https://youtu.be/IM-GnKFraY4](https://youtu.be/IM-GnKFraY4)
+Part 2 video: [https://youtu.be/Rhur-dQu1o0?si=ACddOTE74uURx9Lg](https://youtu.be/Rhur-dQu1o0?si=ACddOTE74uURx9Lg)
 
 ## Part 1 Evidence
 
