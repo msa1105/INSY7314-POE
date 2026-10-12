@@ -1,6 +1,23 @@
-version: '3.9'
+# Runs the API and its MongoDB database.
+# Before `docker compose up`: generate certificates (cd backend && node generate-certs.js)
+# and set JWT_SECRET in a root .env file or your shell.
 
 services:
+  mongo:
+    image: mongo:7
+    container_name: hustlehub-mongo
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+    networks:
+      - hustlehub-net
+    # Not published to the host: only the API container can reach the database.
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -11,17 +28,19 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - JWT_SECRET=${JWT_SECRET}
+      - MONGO_URI=mongodb://mongo:27017/hustlehub
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET before starting}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1h}
       - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-12}
       - CORS_ORIGIN=${CORS_ORIGIN:-https://localhost:3000}
       - SSL_KEY_PATH=./ssl/server.key
       - SSL_CERT_PATH=./ssl/server.cert
     volumes:
-      # Persist JSON data stores between container restarts
-      - backend-data:/app/src/data
       # Mount pre-generated SSL certificates
       - ./backend/ssl:/app/ssl:ro
+    depends_on:
+      mongo:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - hustlehub-net
@@ -34,7 +53,7 @@ services:
       start_period: 10s
 
 volumes:
-  backend-data:
+  mongo-data:
 
 networks:
   hustlehub-net:
