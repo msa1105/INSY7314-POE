@@ -22,16 +22,16 @@ The code references (sections 1–2) also appear as comments directly above the 
 |---|---|---|
 | 1 | adnan kamili (2016) *Is bcrypt.compare vulnerable to timing attack*. Stack Overflow. https://stackoverflow.com/questions/35620979/is-bcrypt-compare-vulnerable-to-timing-attack | `backend/src/controllers/authController.js` (dummy hash for timing-safe login) |
 | 2 | Daniel Gartmann (2016) *How to prevent user enumeration attacks for a login system?* Stack Overflow. https://stackoverflow.com/questions/35827127/how-to-prevent-user-enumeration-attacks-for-a-login-system | `backend/src/controllers/authController.js` (generic login errors) |
-| 3 | OWASP Foundation (n.d.) *Authentication Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html | `backend/src/controllers/authController.js` |
+| 3 | OWASP Foundation (n.d.a) *Authentication Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html | `backend/src/controllers/authController.js` |
 | 4 | Mongoose (n.d.) *How to Use findOneAndUpdate() in Mongoose*. Mongoose Documentation. https://mongoosejs.com/docs/tutorials/findoneandupdate.html | `backend/src/controllers/transactionController.js` (accept/decline only once) |
 | 5 | Auth0 (n.d.) *node-jsonwebtoken: JsonWebToken implementation for node.js*. GitHub. https://github.com/auth0/node-jsonwebtoken | `backend/src/middleware/auth.js` (algorithm, issuer, audience checks) |
 | 6 | daniel (2012) *JavaScript NoSQL Injection prevention in MongoDB*. Stack Overflow. https://stackoverflow.com/questions/13436467/javascript-nosql-injection-prevention-in-mongodb | `backend/src/middleware/sanitize.js` |
 | 7 | Micah Bala (2019) *How to implement validation in a separate file using express-validator*. Stack Overflow. https://stackoverflow.com/questions/55772477/how-to-implement-validation-in-a-separate-file-using-express-validator | `backend/src/middleware/fieldRules.js` |
 | 8 | express-validator (n.d.) *The Validation Chain*. express-validator Documentation. https://express-validator.github.io/docs/guides/validation-chain | `backend/src/middleware/fieldRules.js` |
-| 9 | OWASP Foundation (n.d.) *Input Validation Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html | `backend/src/middleware/fieldRules.js` (allow-lists) |
+| 9 | OWASP Foundation (n.d.b) *Input Validation Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html | `backend/src/middleware/fieldRules.js` (allow-lists) |
 | 10 | user606521 (2014) *How to remove control characters from string?* Stack Overflow. https://stackoverflow.com/questions/26741455/how-to-remove-control-characters-from-string | `backend/src/middleware/fieldRules.js` |
 | 11 | maerics (2011) *Matching a Unicode "name" with a JavaScript Regular Expression*. Stack Overflow. https://stackoverflow.com/questions/5571096/matching-a-unicode-name-with-a-javascript-regular-expression | `backend/src/middleware/fieldRules.js` (name rule) |
-| 12 | MDN contributors (2026) *Unicode character class escape: \p{...}, \P{...}*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape | `backend/src/middleware/fieldRules.js` |
+| 12 | MDN contributors (2026f) *Unicode character class escape: \p{...}, \P{...}*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape | `backend/src/middleware/fieldRules.js` |
 | 13 | Alexander (2020) *Validate input is within a numeric range, possibly a float, using express-validator*. Stack Overflow. https://stackoverflow.com/questions/63404065/validate-input-is-within-a-numeric-range-possibly-a-float-using-express-valida | `backend/src/middleware/fieldRules.js` (money rule) |
 | 14 | xyz83242 (2019) *express-rate-limit - catching the message*. Stack Overflow. https://stackoverflow.com/questions/58486616/express-rate-limit-catching-the-message | `backend/src/middleware/rateLimiter.js` (JSON 429 message) |
 | 15 | Helmet.js (n.d.) *Helmet.js*. Helmet Documentation. https://helmetjs.github.io/ | `backend/src/app.js` (security headers, CSP) |
@@ -45,11 +45,13 @@ The code references (sections 1–2) also appear as comments directly above the 
 |---|---|---|
 | 19 | Lucide Contributors (n.d.) *Lucide for React*. Lucide Documentation. https://lucide.dev/guide/react | Icons in `NavBar.jsx`, `GigCard.jsx`, `StatusLabel.jsx`, `EmptyState.jsx` and the pages |
 | 20 | React Router (n.d.) *NavLink*. React Router Documentation. https://reactrouter.com/api/components/NavLink | `frontend/src/components/NavBar.jsx` (active page) |
-| 21 | MDN contributors (2026) *<select>: The HTML Select element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select | `frontend/src/components/GigForm.jsx` (category dropdown) |
-| 22 | MDN contributors (2026) *<img>: The Image Embed element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img | `frontend/src/components/Photo.jsx` |
-| 23 | MDN contributors (2026) *object-fit*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/object-fit | `frontend/src/components/Photo.jsx`, `frontend/src/index.css` |
-| 24 | MDN contributors (2026) *Basic concepts of grid layout*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout/Basic_concepts | `frontend/src/index.css` (split login/register layout, grids) |
-| 25 | MDN contributors (2026) *prefers-reduced-motion*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion | `frontend/src/index.css` |
+| 21 | MDN contributors (2026e) *<select>: The HTML Select element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select | `frontend/src/components/GigForm.jsx` (category dropdown) |
+| 22 | MDN contributors (2026b) *<img>: The Image Embed element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img | `frontend/src/components/Photo.jsx` |
+| 23 | MDN contributors (2026c) *object-fit*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/object-fit | `frontend/src/components/Photo.jsx`, `frontend/src/index.css` |
+| 24 | MDN contributors (2026a) *Basic concepts of grid layout*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout/Basic_concepts | `frontend/src/index.css` (split login/register layout, grids) |
+| 25 | MDN contributors (2026d) *prefers-reduced-motion*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion | `frontend/src/index.css` |
+
+| 26a | Mermaid (n.d.) *About Mermaid*. Mermaid Documentation. https://mermaid.js.org/intro/ | Architecture, job request and data model diagrams in `README.md` |
 
 ## 3. Images
 

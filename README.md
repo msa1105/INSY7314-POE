@@ -41,7 +41,7 @@ Part 1 built the secure backend foundations. Part 2 extends them into a full-sta
 - **Register** as a client or a freelancer. Admin accounts cannot be self-registered.
 - **Log in** to receive a short-lived JWT (1 hour). The session is cleared when the browser tab closes or the token expires.
 - **Validation as you type.** Errors appear inline on the form, and server errors are shown as friendly messages.
-- **Polished, accessible UI.** Line icons ([Lucide](https://lucide.dev)), initials avatars, photo layouts on the login, register and browse pages, clear empty states and a reduced-motion setting. The stock photos are from Unsplash (free licence), stored with the app so the strict CSP still applies, and every photo is credited on screen.
+- **Polished, accessible UI.** Line icons (Lucide Contributors, n.d.), initials avatars, photo layouts on the login, register and browse pages, clear empty states and a reduced-motion setting. The stock photos are from Unsplash (free licence), stored with the app so the strict CSP still applies, and every photo is credited on screen (Unsplash, n.d.; Daniel Thomas, 2020; Good Faces, 2021; Toa Heftiba, 2018).
 
 ### Clients
 - **Browse** every gig listed on the marketplace.
@@ -60,31 +60,102 @@ Part 1 built the secure backend foundations. Part 2 extends them into a full-sta
 
 ## Architecture
 
-![HustleHub+ Architecture Diagram](architecture_diagram.jpg)
+The diagrams below are written in Mermaid, so GitHub draws them straight from the README text (Mermaid, n.d.) and they always match the code.
+
+### System architecture
 
 ```mermaid
 flowchart TD
-    Browser["Browser"]
-    Browser -->|"HTTPS :3000"| React
+    Browser["Browser"] -->|"HTTPS :3000"| SPA
 
-    subgraph Frontend["React Frontend (Vite)"]
-        React["React SPA\nCSP · X-Frame-Options · nosniff"]
+    subgraph Frontend["React frontend (Vite)"]
+        SPA["React SPA<br/>role-based routes · inline validation<br/>JWT in sessionStorage"]
         Proxy["/api proxy"]
-        React --> Proxy
+        SPA --> Proxy
     end
 
-    Proxy -->|"HTTPS :5000"| SecurityLayer
+    Proxy -->|"HTTPS :5000"| Headers
 
-    subgraph Backend["Node.js + Express API"]
-        SecurityLayer["Helmet + CSP · CORS · Rate Limiter · Morgan"]
-        SecurityLayer --> Parser["Body Parser (10KB) → NoSQL Sanitiser"]
-        Parser --> Routes["Routes\n/api/auth · /api/users · /api/gigs · /api/transactions"]
-        Routes --> MW["express-validator · JWT authenticate · RBAC authorise"]
-        MW --> Controllers["Controllers (ownership checks)"]
-        Controllers --> Models["Mongoose Models\nUser · Gig · Transaction"]
+    subgraph API["Node.js + Express API"]
+        Headers["Helmet (CSP, HSTS) · CORS allow-list · Morgan"]
+        Limit["Rate limiters<br/>general · auth · job requests"]
+        Body["JSON body (10KB) → NoSQL sanitiser"]
+        Rules["fieldRules: express-validator<br/>types · allow-lists · escape"]
+        Auth["authenticate (JWT) → authorise (RBAC)"]
+        Ctrl["Controllers<br/>ownership checks · answer-once update"]
+        Errors["errorHandler<br/>no stack traces leaked"]
+        Headers --> Limit --> Body --> Rules --> Auth --> Ctrl
+        Ctrl -.-> Errors
     end
 
-    Models --> MongoDB[("MongoDB")]
+    Ctrl --> Models["Mongoose models<br/>User · Gig · Transaction"]
+    Models --> DB[("MongoDB<br/>local (db:local) or Docker")]
+```
+
+### Job request flow
+
+A client sends a request with their own offer; only the freelancer who received it can accept or decline it, and only once.
+
+```mermaid
+sequenceDiagram
+    actor Client
+    participant SPA as React SPA
+    participant API as Express API
+    participant DB as MongoDB
+    actor Freelancer
+
+    Client->>SPA: Request job (work details + offer)
+    SPA->>API: POST /api/transactions (JWT)
+    API->>API: rate limit · validate · client role
+    API->>DB: create request (status: pending)
+    API-->>SPA: 201 Created
+    Freelancer->>SPA: Accept
+    SPA->>API: PATCH /api/transactions/:id { status: accepted }
+    API->>API: freelancer role · must be the receiver
+    API->>DB: findOneAndUpdate where status = pending
+    alt still pending
+        DB-->>API: updated request
+        API-->>SPA: 200 OK (simulated payment, counts as income)
+    else already answered
+        API-->>SPA: 409 Conflict
+    end
+```
+
+### Data model
+
+```mermaid
+erDiagram
+    USER ||--o{ GIG : "lists (freelancer)"
+    USER ||--o{ TRANSACTION : "sends (client)"
+    USER ||--o{ TRANSACTION : "receives (freelancer)"
+    GIG ||--o{ TRANSACTION : "is requested in"
+
+    USER {
+        ObjectId id
+        string name
+        string email "unique"
+        string passwordHash "bcrypt, never returned"
+        string role "client | freelancer | admin"
+    }
+    GIG {
+        ObjectId id
+        ObjectId freelancer
+        string title
+        string description
+        number price
+        string category "fixed list"
+    }
+    TRANSACTION {
+        ObjectId id
+        ObjectId gig
+        ObjectId client
+        ObjectId freelancer
+        string gigTitle "copied at request time"
+        string details
+        number amount "client's offer"
+        string status "pending | accepted | declined"
+        date respondedAt
+    }
 ```
 
 **Request lifecycle (API):**
@@ -92,8 +163,8 @@ flowchart TD
 ```
 Request → Helmet (headers + CSP) → CORS (origin allow-list) → Rate limiter
   → JSON body (10KB max) → NoSQL sanitiser (strips $ / . keys)
-  → Route → [booking limiter] → authenticate (JWT) → authorise (role)
-  → express-validator (validate + escape) → validate (422 on failure)
+  → Route → [job-request limiter] → authenticate (JWT) → authorise (role)
+  → fieldRules / express-validator (validate + escape) → validate (422 on failure)
   → Controller (ownership checks) → Mongoose → MongoDB
   → Response / errorHandler (no stack traces or internals leaked)
 ```
@@ -219,7 +290,7 @@ The request is stored as `pending` with the client's offer. The freelancer and t
 }
 ```
 
-The update is conditional (`findOneAndUpdate` on `{ _id, status: 'pending' }`), so a request can only ever be answered once, even if two responses arrive together. A second attempt returns **409**. The gig title is copied onto the request, so the record stays accurate if the gig is later edited or deleted.
+The update is conditional (`findOneAndUpdate` on `{ _id, status: 'pending' }`), so a request can only ever be answered once, even if two responses arrive together (Mongoose, n.d.). A second attempt returns **409**. The gig title is copied onto the request, so the record stays accurate if the gig is later edited or deleted.
 
 ---
 
@@ -231,38 +302,38 @@ The update is conditional (`findOneAndUpdate` on `{ _id, status: 'pending' }`), 
 |---|---|---|
 | Credential theft in transit (MITM) | HTTPS-only API (TLS, RSA 2048 / SHA-256) and HSTS (1 year). The frontend dev server and preview also run over HTTPS. | `server.js`, `app.js`, `vite.config.js` |
 | Password cracking after a breach | bcrypt with cost 12. `passwordHash` is `select: false` and stripped by `toJSON`. | `authController.js`, `models/User.js` |
-| User enumeration | Same error for unknown email and wrong password, plus timing normalisation with a **real** bcrypt dummy hash | `authController.js` |
-| Token forgery / misuse | JWT pinned to HS256 and checked for **issuer and audience**, 1-hour expiry, secret loaded from env | `middleware/auth.js` |
+| User enumeration | Same error for unknown email and wrong password, plus timing normalisation with a **real** bcrypt dummy hash (adnan kamili, 2016; Daniel Gartmann, 2016; OWASP Foundation, n.d.a) | `authController.js` |
+| Token forgery / misuse | JWT pinned to HS256 and checked for **issuer and audience**, 1-hour expiry, secret loaded from env (Auth0, n.d.) | `middleware/auth.js` |
 | Privilege escalation | `authorise()` role checks, ownership checks in controllers (gig owner, request receiver), admin role cannot be self-registered | routes, controllers |
 | Insecure direct object reference (IDOR) | Queries filtered by `req.user.id`, and ownership compared before any update or delete | `gigController.js`, `transactionController.js` |
 | Mass assignment | Controllers copy only whitelisted fields, so `freelancer`, `role` and `status` cannot be set by the client. A client's offer (`amount`) is validated, never trusted blindly. | controllers |
-| NoSQL injection | Sanitiser strips `$` and `.` keys from body, query and params. `strictQuery` is on. Ids are validated with `isMongoId()`. | `middleware/sanitize.js`, `config/db.js` |
-| Stored XSS | Names and gig titles use a character allow-list (no `<` or `>`). Free text is `.escape()`d. React renders text, never HTML (no `dangerouslySetInnerHTML`). Strict CSP. | `fieldRules.js`, routes, frontend |
-| Malformed / unexpected input | Type checks (arrays or objects where text is expected are rejected), control characters rejected, money limited to 2 decimal places, fixed category list, email capped at 254 characters | `middleware/fieldRules.js` |
+| NoSQL injection | Sanitiser strips `$` and `.` keys from body, query and params (daniel, 2012). `strictQuery` is on. Ids are validated with `isMongoId()`. | `middleware/sanitize.js`, `config/db.js` |
+| Stored XSS | Names and gig titles use a character allow-list (no `<` or `>`). Free text is `.escape()`d. React renders text, never HTML (no `dangerouslySetInnerHTML`) (user1210233, 2015). Strict CSP. | `fieldRules.js`, routes, frontend |
+| Malformed / unexpected input | Type checks (arrays or objects where text is expected are rejected), control characters rejected, money limited to 2 decimal places, fixed category list, email capped at 254 characters (OWASP Foundation, n.d.b) | `middleware/fieldRules.js` |
 | Brute force / credential stuffing | Auth limiter: 20 requests per 15 minutes per IP | `middleware/rateLimiter.js` |
 | Job-request spam | Request limiter: 10 requests per 15 minutes per IP | `middleware/rateLimiter.js` |
 | General abuse / DoS | 100 requests per 15 minutes on `/api/*`, 10KB body limit, 128-character password cap (prevents bcrypt DoS) | `app.js`, `authRoutes.js` |
-| Clickjacking, MIME sniffing | Helmet: `frame-ancestors 'none'`, `X-Frame-Options`, `nosniff`. The frontend sends the same headers. | `app.js`, `vite.config.js` |
+| Clickjacking, MIME sniffing | Helmet: `frame-ancestors 'none'`, `X-Frame-Options`, `nosniff` (Helmet.js, n.d.). The frontend sends the same headers. | `app.js`, `vite.config.js` |
 | Cross-origin abuse | CORS allow-list (`CORS_ORIGIN`). Unknown origins get **403**. | `app.js` |
 | Information disclosure | Global error handler: no stack traces or internals. The frontend shows a generic message on 5xx errors. No source maps in the build. | `errorHandler.js`, `api/client.js`, `vite.config.js` |
 
 ### Validation & sanitisation
 
-All input is validated with `express-validator` chains **before** it reaches a controller. The rules are shared from one module, `backend/src/middleware/fieldRules.js`, so the same field is checked the same way on every route. Invalid input returns **422** with a `fields` array, which the frontend displays next to the matching form fields:
+All input is validated with `express-validator` chains **before** it reaches a controller. The rules are shared from one module, `backend/src/middleware/fieldRules.js`, so the same field is checked the same way on every route (express-validator, n.d.; Micah Bala, 2019). Allow-lists are used wherever the set of valid characters is known, as OWASP recommends (OWASP Foundation, n.d.b). Invalid input returns **422** with a `fields` array, which the frontend displays next to the matching form fields:
 
 | Endpoint | Rules |
 |---|---|
-| Register | Name 2–80 characters, letters, spaces, apostrophes, hyphens and full stops only (e.g. `Zoë O'Brien-Nkosi`). Valid email, at most 254 characters (normalised). Password 8–128 characters with upper, lower, number and special characters. Role must be `client` or `freelancer`. |
+| Register | Name 2–80 characters, letters, spaces, apostrophes, hyphens and full stops only, matched with Unicode letter classes (maerics, 2011; MDN contributors, 2026f) (e.g. `Zoë O'Brien-Nkosi`). Valid email, at most 254 characters (normalised). Password 8–128 characters with upper, lower, number and special characters. Role must be `client` or `freelancer`. |
 | Login | Valid email. Password required (must be text), maximum 128 characters. |
 | Create / update gig | Title 5–100 characters from a character allow-list and must contain a letter. Description 10–2000 characters (line breaks allowed, escaped). Price 1–1,000,000 with at most 2 decimal places. Category must be one of the fixed list (Design, Writing, Development, Marketing, Finance, Admin Support, Video & Animation, Photography, Tutoring, Other). On update every field is optional, but any field sent is validated. |
-| Send job request | `gigId` a valid ObjectId. Work details 10–2000 characters (escaped). Offer 1–1,000,000 with at most 2 decimal places. |
+| Send job request | `gigId` a valid ObjectId. Work details 10–2000 characters (escaped). Offer 1–1,000,000 with at most 2 decimal places (Alexander, 2020). |
 | Accept / decline | `:id` a valid ObjectId. `status` must be exactly `accepted` or `declined`. |
-| Every text field | Must be a string (arrays and objects are rejected). Control characters are rejected; only multi-line fields may contain line breaks. |
+| Every text field | Must be a string (arrays and objects are rejected). Control characters are rejected; only multi-line fields may contain line breaks (user606521, 2014). |
 | `:id` params | `isMongoId()` |
 
 The frontend runs the same checks (`src/utils/validation.js`) for instant feedback, and the gig category is a dropdown, but the server never relies on any of it.
 
-Text is stored HTML-escaped (for example, `<script>` is stored as `&lt;script&gt;`). The frontend decodes these entities for display (`decodeEntities`). This is safe because React inserts strings as text nodes: a payload is shown literally and never executed. The tests cover this case.
+Text is stored HTML-escaped (for example, `<script>` is stored as `&lt;script&gt;`). The frontend decodes these entities for display (`decodeEntities`). This is safe because React inserts strings as text nodes: a payload is shown literally and never executed (user1210233, 2015). The tests cover this case.
 
 ### Rate limiting
 
@@ -272,7 +343,7 @@ Text is stored HTML-escaped (for example, `<script>` is stored as `&lt;script&gt
 | Auth | `/api/auth/*` | 20 requests per 15 minutes per IP | `429 { "error": "Too many authentication attempts. Please try again in 15 minutes.", ... }` |
 | Job request | `POST /api/transactions` | 10 requests per 15 minutes per IP | `429 { "error": "Too many booking attempts. Please try again in 15 minutes.", ... }` |
 
-All limiters also send the standard `RateLimit-*` and `Retry-After` headers. The frontend displays the 429 message to the user.
+All limiters also send the standard `RateLimit-*` and `Retry-After` headers, and return the message as JSON so the frontend can show it (xyz83242, 2019).
 
 ### Security headers & Content Security Policy
 
@@ -296,13 +367,13 @@ The built app contains no inline scripts or styles, so the CSP doesn't need `'un
 
 ### Frontend session handling
 
-- The JWT and the safe user object are stored in **sessionStorage**, not localStorage, so they're cleared when the tab closes. No password is ever stored.
+- The JWT and the safe user object are stored in **sessionStorage**, not localStorage, so they're cleared when the tab closes (MDN contributors, 2025; Timespace, 2014). No password is ever stored.
 - Expired tokens are discarded on load. Any **401** from the API logs the user out with a "session expired" message.
 - Rejected passwords are cleared from the login form.
 
 ### Password hashing & timing-attack defence
 
-bcrypt (cost 12) is slow by design. It salts every hash, defeating rainbow tables, and resists GPU cracking. If a login used an unknown email and the server skipped bcrypt, that request would return faster than one with a known email, revealing which emails are registered. HustleHub+ therefore always runs `bcrypt.compare`, using a dummy hash when no user is found.
+bcrypt (cost 12) is slow by design. It salts every hash, defeating rainbow tables, and resists GPU cracking. If a login used an unknown email and the server skipped bcrypt, that request would return faster than one with a known email, revealing which emails are registered. HustleHub+ therefore always runs `bcrypt.compare`, using a dummy hash when no user is found (adnan kamili, 2016).
 
 > **Part 2 fix:** Part 1's dummy hash was not a valid 60-character bcrypt string, so bcrypt rejected it instantly (~1ms versus ~390ms) and the defence did not work. It is now a real hash generated at startup with the same cost factor:
 > ```javascript
@@ -311,7 +382,7 @@ bcrypt (cost 12) is slow by design. It salts every hash, defeating rainbow table
 
 ### JWT
 
-The token payload contains only `id`, `email`, `role`, `iat`, `exp`, `iss` and `aud`. Verification checks all of them:
+The token payload contains only `id`, `email`, `role`, `iat`, `exp`, `iss` and `aud`. Verification checks all of them (Auth0, n.d.):
 
 ```javascript
 jwt.verify(token, process.env.JWT_SECRET, {
@@ -529,21 +600,21 @@ Part 1 (Secure Backend Foundations) Postman screenshots are kept in [`images/Pos
 
 ## References
 
-The same references appear as comments next to the code they informed. The complete list, including image credits, design inspiration and every library and tool with its licence, is in [`ATTRIBUTIONS.md`](ATTRIBUTIONS.md).
+References are cited in the text above in Harvard style (Author, Year), and also appear as comments next to the code they informed. The complete list, including image credits, design inspiration and every library and tool with its licence, is in [`ATTRIBUTIONS.md`](ATTRIBUTIONS.md).
 
 | Source | Used in |
 |---|---|
 | adnan kamili (2016) *Is bcrypt.compare vulnerable to timing attack*. Stack Overflow. https://stackoverflow.com/questions/35620979/is-bcrypt-compare-vulnerable-to-timing-attack (Accessed: 11 October 2026) | `authController.js` (dummy hash) |
 | Daniel Gartmann (2016) *How to prevent user enumeration attacks for a login system?* Stack Overflow. https://stackoverflow.com/questions/35827127/how-to-prevent-user-enumeration-attacks-for-a-login-system (Accessed: 11 October 2026) | `authController.js` (login) |
-| OWASP Foundation (n.d.) *Authentication Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html (Accessed: 11 October 2026) | `authController.js` (login) |
+| OWASP Foundation (n.d.a) *Authentication Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html (Accessed: 11 October 2026) | `authController.js` (login) |
 | Auth0 (n.d.) *node-jsonwebtoken: JsonWebToken implementation for node.js*. GitHub. https://github.com/auth0/node-jsonwebtoken (Accessed: 11 October 2026) | `middleware/auth.js` |
 | daniel (2012) *JavaScript NoSQL Injection prevention in MongoDB*. Stack Overflow. https://stackoverflow.com/questions/13436467/javascript-nosql-injection-prevention-in-mongodb (Accessed: 11 October 2026) | `middleware/sanitize.js` |
 | Micah Bala (2019) *How to implement validation in a separate file using express-validator*. Stack Overflow. https://stackoverflow.com/questions/55772477/how-to-implement-validation-in-a-separate-file-using-express-validator (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
 | express-validator (n.d.) *The Validation Chain*. express-validator Documentation. https://express-validator.github.io/docs/guides/validation-chain (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
-| OWASP Foundation (n.d.) *Input Validation Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
+| OWASP Foundation (n.d.b) *Input Validation Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
 | user606521 (2014) *How to remove control characters from string?* Stack Overflow. https://stackoverflow.com/questions/26741455/how-to-remove-control-characters-from-string (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
 | maerics (2011) *Matching a Unicode "name" with a JavaScript Regular Expression*. Stack Overflow. https://stackoverflow.com/questions/5571096/matching-a-unicode-name-with-a-javascript-regular-expression (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
-| MDN contributors (2026) *Unicode character class escape: \p{...}, \P{...}*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
+| MDN contributors (2026f) *Unicode character class escape: \p{...}, \P{...}*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
 | Alexander (2020) *Validate input is within a numeric range, possibly a float, using express-validator*. Stack Overflow. https://stackoverflow.com/questions/63404065/validate-input-is-within-a-numeric-range-possibly-a-float-using-express-valida (Accessed: 11 October 2026) | `middleware/fieldRules.js` (money) |
 | xyz83242 (2019) *express-rate-limit - catching the message*. Stack Overflow. https://stackoverflow.com/questions/58486616/express-rate-limit-catching-the-message (Accessed: 11 October 2026) | `middleware/rateLimiter.js` |
 | Helmet.js (n.d.) *Helmet.js*. Helmet Documentation. https://helmetjs.github.io/ (Accessed: 11 October 2026) | `app.js` |
@@ -553,12 +624,13 @@ The same references appear as comments next to the code they informed. The compl
 | user1210233 (2015) *What does it mean when they say React is XSS protected?* Stack Overflow. https://stackoverflow.com/questions/33644499/what-does-it-mean-when-they-say-react-is-xss-protected (Accessed: 11 October 2026) | `frontend/src/utils/format.js` |
 | Lucide Contributors (n.d.) *Lucide for React*. Lucide Documentation. https://lucide.dev/guide/react (Accessed: 11 October 2026) | Icons throughout the UI (`NavBar.jsx`, `GigCard.jsx`, `StatusLabel.jsx`, pages) |
 | React Router (n.d.) *NavLink*. React Router Documentation. https://reactrouter.com/api/components/NavLink (Accessed: 11 October 2026) | `NavBar.jsx` (active page highlight) |
-| MDN contributors (2026) *<select>: The HTML Select element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select (Accessed: 11 October 2026) | `GigForm.jsx` (category dropdown) |
-| MDN contributors (2026) *<img>: The Image Embed element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img (Accessed: 11 October 2026) | `Photo.jsx` |
-| MDN contributors (2026) *object-fit*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/object-fit (Accessed: 11 October 2026) | `Photo.jsx`, `index.css` |
-| MDN contributors (2026) *Basic concepts of grid layout*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout/Basic_concepts (Accessed: 11 October 2026) | `index.css` (split login/register layout, grids) |
-| MDN contributors (2026) *prefers-reduced-motion*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion (Accessed: 11 October 2026) | `index.css` |
+| MDN contributors (2026e) *<select>: The HTML Select element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select (Accessed: 11 October 2026) | `GigForm.jsx` (category dropdown) |
+| MDN contributors (2026b) *<img>: The Image Embed element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img (Accessed: 11 October 2026) | `Photo.jsx` |
+| MDN contributors (2026c) *object-fit*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/object-fit (Accessed: 11 October 2026) | `Photo.jsx`, `index.css` |
+| MDN contributors (2026a) *Basic concepts of grid layout*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout/Basic_concepts (Accessed: 11 October 2026) | `index.css` (split login/register layout, grids) |
+| MDN contributors (2026d) *prefers-reduced-motion*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion (Accessed: 11 October 2026) | `index.css` |
 | Unsplash (n.d.) *License*. Unsplash. https://unsplash.com/license (Accessed: 11 October 2026) | `assets/photos.js` |
 | Toa Heftiba (2018) *Cup of coffee, laptop computer, and red earphones plugged in laptop on brown wooden table* [Photograph]. Unsplash. https://unsplash.com/photos/cup-of-coffee-laptop-computer-and-red-earphones-plugged-in-laptop-on-brown-wooden-table-W6q15ddqqJo (Accessed: 11 October 2026) | Browse gigs banner (`public/images/hero-workspace.jpg`) |
 | Good Faces (2021) *Woman in gray sweater sitting on chair using macbook* [Photograph]. Unsplash. https://unsplash.com/photos/woman-in-gray-sweater-sitting-on-chair-using-macbook-gy5SlRW9OGA (Accessed: 11 October 2026) | Log in page (`public/images/auth-login.jpg`) |
 | Daniel Thomas (2020) *Person using black and silver laptop computer* [Photograph]. Unsplash. https://unsplash.com/photos/person-using-black-and-silver-laptop-computer-6_NXEMZbUq0 (Accessed: 11 October 2026) | Register page (`public/images/auth-register.jpg`) |
+| Mermaid (n.d.) *About Mermaid*. Mermaid Documentation. https://mermaid.js.org/intro/ (Accessed: 11 October 2026) | Architecture, job request and data model diagrams (README) |
