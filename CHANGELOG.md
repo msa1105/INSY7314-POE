@@ -2,13 +2,25 @@
 
 ## Now / Next / Known issues
 
-- **Now:** README updated for Part 2 and 18 verified references added. Awaiting review.
+- **Now:** UI polish with icons, stock photos and references. Awaiting review.
 - **Next:**
   - Record the Part 2 demo video and add its link to the README.
-  - Push `feature/job-requests` and open a pull request into `main`.
+  - Retake the `images/app/` screenshots so they show the polished UI.
 - **Known issues:**
   - The frontend CSP is only sent by `npm run preview`, not `npm run dev` (documented in the README).
   - The git-native v3 collection under `postman/collections/` still only covers Part 1. The JSON collection is the complete one.
+
+## 2026-10-12 – UI polish, icons and stock photos
+
+- **Icons:** `lucide-react` line icons on nav links, buttons, statuses, stats and empty states. Every icon is decorative (`aria-hidden`), so button names are unchanged.
+- **Photos:** three Unsplash photos (free licence) are stored in `frontend/public/images/` and served from our own origin, so `img-src 'self'` still holds. Each photographer is credited on screen and referenced.
+- **Layout:**
+  - Login and register are now a split layout, with the form beside a photo and a short message. The photo is hidden on narrow screens.
+  - Browse gigs has a photo banner.
+- **Details:** initials avatars in the nav and on gig cards, icon tiles on the stats, and friendlier empty states. Gig cards lift slightly on hover, and the reduced-motion setting is respected. The work details column in tables has a minimum width.
+- **New components:** `Photo`, `AuthLayout`, `Avatar`, `StatusLabel`, `EmptyState`, plus `assets/photos.js`.
+- **References:** 11 new references cover the UI components, the CSS techniques and the three photos. They're in the code and in the README.
+- **Checks:** checked in Chrome on login, register, browse gigs, requests & income and admin. Frontend tests 34/34, lint and build pass. The phone layout wasn't checked visually, because Chrome wouldn't resize.
 
 ## 2026-10-12 – README and references
 

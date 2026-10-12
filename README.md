@@ -41,6 +41,7 @@ Part 1 built the secure backend foundations. Part 2 extends them into a full-sta
 - **Register** as a client or a freelancer. Admin accounts cannot be self-registered.
 - **Log in** to receive a short-lived JWT (1 hour). The session is cleared when the browser tab closes or the token expires.
 - **Validation as you type.** Errors appear inline on the form, and server errors are shown as friendly messages.
+- **Polished, accessible UI.** Line icons ([Lucide](https://lucide.dev)), initials avatars, photo layouts on the login, register and browse pages, clear empty states and a reduced-motion setting. The stock photos are from Unsplash (free licence), stored with the app so the strict CSP still applies, and every photo is credited on screen.
 
 ### Clients
 - **Browse** every gig listed on the marketplace.
@@ -549,3 +550,14 @@ The same references appear as comments next to the code they informed.
 | Timespace (2014) *Where to store JWT in browser? How to protect against CSRF?* Stack Overflow. https://stackoverflow.com/questions/27067251/where-to-store-jwt-in-browser-how-to-protect-against-csrf (Accessed: 11 October 2026) | `frontend/src/auth/AuthContext.jsx` |
 | MDN contributors (2025) *Window: sessionStorage property*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage (Accessed: 11 October 2026) | `frontend/src/auth/AuthContext.jsx` |
 | user1210233 (2015) *What does it mean when they say React is XSS protected?* Stack Overflow. https://stackoverflow.com/questions/33644499/what-does-it-mean-when-they-say-react-is-xss-protected (Accessed: 11 October 2026) | `frontend/src/utils/format.js` |
+| Lucide Contributors (n.d.) *Lucide for React*. Lucide Documentation. https://lucide.dev/guide/react (Accessed: 11 October 2026) | Icons throughout the UI (`NavBar.jsx`, `GigCard.jsx`, `StatusLabel.jsx`, pages) |
+| React Router (n.d.) *NavLink*. React Router Documentation. https://reactrouter.com/api/components/NavLink (Accessed: 11 October 2026) | `NavBar.jsx` (active page highlight) |
+| MDN contributors (2026) *<select>: The HTML Select element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select (Accessed: 11 October 2026) | `GigForm.jsx` (category dropdown) |
+| MDN contributors (2026) *<img>: The Image Embed element*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img (Accessed: 11 October 2026) | `Photo.jsx` |
+| MDN contributors (2026) *object-fit*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/object-fit (Accessed: 11 October 2026) | `Photo.jsx`, `index.css` |
+| MDN contributors (2026) *Basic concepts of grid layout*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout/Basic_concepts (Accessed: 11 October 2026) | `index.css` (split login/register layout, grids) |
+| MDN contributors (2026) *prefers-reduced-motion*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion (Accessed: 11 October 2026) | `index.css` |
+| Unsplash (n.d.) *License*. Unsplash. https://unsplash.com/license (Accessed: 11 October 2026) | `assets/photos.js` |
+| Toa Heftiba (2018) *Cup of coffee, laptop computer, and red earphones plugged in laptop on brown wooden table* [Photograph]. Unsplash. https://unsplash.com/photos/cup-of-coffee-laptop-computer-and-red-earphones-plugged-in-laptop-on-brown-wooden-table-W6q15ddqqJo (Accessed: 11 October 2026) | Browse gigs banner (`public/images/hero-workspace.jpg`) |
+| Good Faces (2021) *Woman in gray sweater sitting on chair using macbook* [Photograph]. Unsplash. https://unsplash.com/photos/woman-in-gray-sweater-sitting-on-chair-using-macbook-gy5SlRW9OGA (Accessed: 11 October 2026) | Log in page (`public/images/auth-login.jpg`) |
+| Daniel Thomas (2020) *Person using black and silver laptop computer* [Photograph]. Unsplash. https://unsplash.com/photos/person-using-black-and-silver-laptop-computer-6_NXEMZbUq0 (Accessed: 11 October 2026) | Register page (`public/images/auth-register.jpg`) |

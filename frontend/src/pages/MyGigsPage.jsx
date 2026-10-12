@@ -4,6 +4,8 @@ import * as api from '../api/endpoints'
 import GigCard from '../components/GigCard'
 import GigForm from '../components/GigForm'
 import Alert from '../components/Alert'
+import EmptyState from '../components/EmptyState'
+import { Briefcase } from 'lucide-react'
 import { decodeEntities } from '../utils/format'
 
 /** Freelancer dashboard: create, edit and delete your own gigs. */
@@ -80,7 +82,7 @@ export default function MyGigsPage() {
           {loading ? (
             <p className="muted">Loading…</p>
           ) : gigs.length === 0 ? (
-            <div className="empty">You have no gigs yet. Create your first one.</div>
+            <EmptyState icon={Briefcase} title="You have no gigs yet">Create your first one with the form.</EmptyState>
           ) : (
             <div className="stack">
               {gigs.map((gig) => (

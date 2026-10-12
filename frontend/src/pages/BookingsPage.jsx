@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import * as api from '../api/endpoints'
 import Alert from '../components/Alert'
+import EmptyState from '../components/EmptyState'
+import StatusLabel from '../components/StatusLabel'
+import { Check, ClipboardList, Receipt, Wallet, Briefcase, X } from 'lucide-react'
 import { decodeEntities, formatDate, formatRand } from '../utils/format'
 
 /**
@@ -74,14 +77,17 @@ export default function BookingsPage() {
       {isFreelancer && income && (
         <div className="stats">
           <div className="card stat">
+            <span className="stat__icon"><Wallet aria-hidden="true" /></span>
             <span className="stat__label">Total income</span>
             <span className="stat__value">{formatRand(income.totalIncome)}</span>
           </div>
           <div className="card stat">
+            <span className="stat__icon"><Briefcase aria-hidden="true" /></span>
             <span className="stat__label">Accepted jobs</span>
             <span className="stat__value">{income.bookings}</span>
           </div>
           <div className="card stat">
+            <span className="stat__icon"><Receipt aria-hidden="true" /></span>
             <span className="stat__label">Estimated tax ({income.taxRate})</span>
             <span className="stat__value">{formatRand(income.estimatedTax)}</span>
           </div>
@@ -91,9 +97,9 @@ export default function BookingsPage() {
       {loading ? (
         <p className="muted">Loading…</p>
       ) : transactions.length === 0 ? (
-        <div className="empty">
-          {isFreelancer ? 'No requests yet.' : <>No requests yet. <Link to="/gigs">Browse gigs</Link></>}
-        </div>
+        <EmptyState icon={ClipboardList} title="No requests yet">
+          {isFreelancer ? 'Requests from clients will show up here.' : <><Link to="/gigs">Browse gigs</Link> to send your first job request.</>}
+        </EmptyState>
       ) : (
         <div className="card table-wrap">
           <table className="table">
@@ -117,16 +123,16 @@ export default function BookingsPage() {
                     <td>{decodeEntities(tx.gigTitle)}</td>
                     <td>{party ? decodeEntities(party.name) : '—'}</td>
                     <td className="details">{decodeEntities(tx.details)}</td>
-                    <td><span className={`status status--${tx.status}`}>{tx.status}</span></td>
+                    <td><StatusLabel status={tx.status} /></td>
                     <td className="num">{formatRand(tx.amount)}</td>
                     {isFreelancer && (
                       <td>
                         {tx.status === 'pending' && (
                           <div className="form__actions">
                             <button type="button" className="btn btn--primary btn--sm" disabled={respondingId === tx.id}
-                              onClick={() => handleRespond(tx, 'accepted')}>Accept</button>
+                              onClick={() => handleRespond(tx, 'accepted')}><Check aria-hidden="true" />Accept</button>
                             <button type="button" className="btn btn--ghost btn--sm" disabled={respondingId === tx.id}
-                              onClick={() => handleRespond(tx, 'declined')}>Decline</button>
+                              onClick={() => handleRespond(tx, 'declined')}><X aria-hidden="true" />Decline</button>
                           </div>
                         )}
                       </td>

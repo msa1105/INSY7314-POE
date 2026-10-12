@@ -5,6 +5,12 @@ import { fieldErrorMap } from '../api/client'
 import { decodeEntities } from '../utils/format'
 import { GIG_CATEGORIES, validateGig } from '../utils/validation'
 
+/* MDN contributors, 2026
+ * <select>: The HTML Select element
+ * MDN Web Docs
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select
+ * Accessed: 11 October 2026
+ */
 const EMPTY = { title: '', description: '', price: '', category: '' }
 
 function toFormValues(gig) {

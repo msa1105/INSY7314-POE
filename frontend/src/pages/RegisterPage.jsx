@@ -3,6 +3,8 @@ import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import FormField from '../components/FormField'
 import Alert from '../components/Alert'
+import AuthLayout from '../components/AuthLayout'
+import { PHOTOS } from '../assets/photos'
 import { fieldErrorMap } from '../api/client'
 import { validateRegister } from '../utils/validation'
 
@@ -48,8 +50,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="auth-page">
-      <form className="card form auth-card" onSubmit={handleSubmit} noValidate>
+    <AuthLayout
+      photo={PHOTOS.register}
+      heading="Hire talent or sell your skills."
+      text="Create a free account as a client or a freelancer. Your password is hashed, your session ends when you close the tab, and only you can see your requests."
+    >
+      <form className="form auth-card" onSubmit={handleSubmit} noValidate>
         <h1 className="form__title">Create your account</h1>
         <p className="muted">Hire talent or sell your skills.</p>
         <Alert type="error">{formError}</Alert>
@@ -96,6 +102,6 @@ export default function RegisterPage() {
           Already have an account? <Link to="/login">Log in</Link>
         </p>
       </form>
-    </div>
+    </AuthLayout>
   )
 }

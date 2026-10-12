@@ -3,6 +3,8 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import FormField from '../components/FormField'
 import Alert from '../components/Alert'
+import AuthLayout from '../components/AuthLayout'
+import { PHOTOS } from '../assets/photos'
 import { fieldErrorMap } from '../api/client'
 import { validateLogin } from '../utils/validation'
 
@@ -43,10 +45,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-page">
-      <form className="card form auth-card" onSubmit={handleSubmit} noValidate>
+    <AuthLayout
+      photo={PHOTOS.login}
+      heading="Good work, fairly paid."
+      text="Freelancers list their services. Clients send a job request with their own offer, and nothing is charged until the freelancer accepts."
+    >
+      <form className="form auth-card" onSubmit={handleSubmit} noValidate>
         <h1 className="form__title">Welcome back</h1>
-        <p className="muted">Log in to browse and book gigs.</p>
+        <p className="muted">Log in to browse gigs and manage your job requests.</p>
         <Alert type="info">{notice}</Alert>
         <Alert type="error">{formError}</Alert>
 
@@ -66,6 +72,6 @@ export default function LoginPage() {
           New to HustleHub+? <Link to="/register">Create an account</Link>
         </p>
       </form>
-    </div>
+    </AuthLayout>
   )
 }

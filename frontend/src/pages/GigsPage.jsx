@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Plus, Search } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import * as api from '../api/endpoints'
 import GigCard from '../components/GigCard'
 import Alert from '../components/Alert'
 import FormField from '../components/FormField'
+import EmptyState from '../components/EmptyState'
+import Photo from '../components/Photo'
+import { PHOTOS } from '../assets/photos'
 import { fieldErrorMap } from '../api/client'
 import { decodeEntities, formatRand } from '../utils/format'
 import { validateRequest } from '../utils/validation'
@@ -88,14 +92,20 @@ export default function GigsPage() {
 
   return (
     <section className="page">
-      <div className="page__header">
-        <div>
+      <div className="hero">
+        <Photo photo={PHOTOS.hero} className="hero__photo" eager />
+        <div className="hero__content">
           <h1>Browse gigs</h1>
-          <p className="muted">
+          <p className="hero__text">
             {isClient ? 'Find a freelancer and send them a job request.' : 'All services currently listed on HustleHub+.'}
           </p>
+          {user.role === 'freelancer' && (
+            <Link to="/my-gigs" className="btn btn--primary">
+              <Plus aria-hidden="true" />
+              New gig
+            </Link>
+          )}
         </div>
-        {user.role === 'freelancer' && <Link to="/my-gigs" className="btn btn--primary">+ New gig</Link>}
       </div>
 
       <Alert type="error">{error}</Alert>
@@ -148,7 +158,7 @@ export default function GigsPage() {
       {loading ? (
         <p className="muted">Loading gigs…</p>
       ) : gigs.length === 0 ? (
-        <div className="empty">No gigs listed yet.</div>
+        <EmptyState icon={Search} title="No gigs listed yet">New services will appear here as freelancers add them.</EmptyState>
       ) : (
         <div className="grid">
           {gigs.map((gig) => (

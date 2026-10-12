@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import * as api from '../api/endpoints'
 import Alert from '../components/Alert'
+import StatusLabel from '../components/StatusLabel'
+import { HandCoins, Receipt, Users } from 'lucide-react'
 import { decodeEntities, formatDate, formatRand } from '../utils/format'
 
 /** Admin overview: every user and every transaction on the platform. */
@@ -43,9 +45,9 @@ export default function AdminPage() {
       <Alert type="error">{error}</Alert>
 
       <div className="stats">
-        <div className="card stat"><span className="stat__label">Users</span><span className="stat__value">{users.length}</span></div>
-        <div className="card stat"><span className="stat__label">Transactions</span><span className="stat__value">{transactions.length}</span></div>
-        <div className="card stat"><span className="stat__label">Paid volume</span><span className="stat__value">{formatRand(volume)}</span></div>
+        <div className="card stat"><span className="stat__icon"><Users aria-hidden="true" /></span><span className="stat__label">Users</span><span className="stat__value">{users.length}</span></div>
+        <div className="card stat"><span className="stat__icon"><Receipt aria-hidden="true" /></span><span className="stat__label">Transactions</span><span className="stat__value">{transactions.length}</span></div>
+        <div className="card stat"><span className="stat__icon"><HandCoins aria-hidden="true" /></span><span className="stat__label">Paid volume</span><span className="stat__value">{formatRand(volume)}</span></div>
       </div>
 
       <div className="tabs" role="tablist">
@@ -85,7 +87,7 @@ export default function AdminPage() {
                   <td>{decodeEntities(tx.gigTitle)}</td>
                   <td>{tx.client ? decodeEntities(tx.client.name) : '—'}</td>
                   <td>{tx.freelancer ? decodeEntities(tx.freelancer.name) : '—'}</td>
-                  <td><span className={`status status--${tx.status}`}>{tx.status}</span></td>
+                  <td><StatusLabel status={tx.status} /></td>
                   <td className="num">{formatRand(tx.amount)}</td>
                 </tr>
               ))}
