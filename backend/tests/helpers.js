@@ -38,11 +38,18 @@ function useTestDatabase() {
 
 let counter = 0;
 
+/** 1 -> "A", 27 -> "AA": names may only contain letters, so the counter is spelled out. */
+function letters(n) {
+  let out = '';
+  for (; n > 0; n = Math.floor((n - 1) / 26)) out = String.fromCharCode(65 + ((n - 1) % 26)) + out;
+  return out;
+}
+
 /** Registers a client or freelancer through the API and returns { token, user }. */
 async function registerAndLogin(role) {
   counter += 1;
   const res = await request(app).post('/api/auth/register').send({
-    name:     `Test ${role} ${counter}`,
+    name:     `Test ${role} ${letters(counter)}`,
     email:    `${role}${counter}@hustlehub.test`,
     password: PASSWORD,
     role,

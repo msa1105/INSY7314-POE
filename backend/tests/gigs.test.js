@@ -82,14 +82,55 @@ describe('Gig create & view', () => {
     expect(fields).toEqual(expect.arrayContaining(['title', 'description', 'price', 'category']));
   });
 
-  test('HTML in gig input is escaped (stored XSS prevention)', async () => {
+  test('HTML in a gig title is rejected by the character allow-list', async () => {
     const freelancer = await registerAndLogin('freelancer');
     const res = await createGig(freelancer.token, {
       ...VALID_GIG, title: '<script>alert(1)</script>',
     });
+    expect(res.status).toBe(422);
+    expect(res.body.fields.map((f) => f.field)).toContain('title');
+  });
+
+  test('HTML in a free-text description is escaped (stored XSS prevention)', async () => {
+    const freelancer = await registerAndLogin('freelancer');
+    const res = await createGig(freelancer.token, {
+      ...VALID_GIG, description: 'Great logos <script>alert(1)</script> guaranteed',
+    });
     expect(res.status).toBe(201);
-    expect(res.body.gig.title).not.toContain('<script>');
-    expect(res.body.gig.title).toContain('&lt;script&gt;');
+    expect(res.body.gig.description).not.toContain('<script>');
+    expect(res.body.gig.description).toContain('&lt;script&gt;');
+  });
+});
+
+// ── Input hardening ────────────────────────────────────────────────────────
+
+describe('Gig input hardening', () => {
+  test.each([
+    ['title as an array',             { title: ['Logo design service'] }, 'title'],
+    ['title with control characters', { title: 'Logo\u0007design\u0000svc' }, 'title'],
+    ['title with no letters',         { title: '!!!!!!!!!!' }, 'title'],
+    ['description with NUL',          { description: 'Nice\u0000description here' }, 'description'],
+    ['price as an array',             { price: [100, 200] }, 'price'],
+    ['price with 3 decimals',         { price: 10.999 }, 'price'],
+    ['price in exponent form',        { price: '1e3' }, 'price'],
+    ['price as a boolean',            { price: true }, 'price'],
+    ['category not in the list',      { category: 'Anything goes' }, 'category'],
+    ['category as an array',          { category: ['Design'] }, 'category'],
+  ])('%s is rejected with 422', async (_label, overrides, field) => {
+    const freelancer = await registerAndLogin('freelancer');
+    const res = await createGig(freelancer.token, { ...VALID_GIG, ...overrides });
+    expect(res.status).toBe(422);
+    expect(res.body.fields.map((f) => f.field)).toContain(field);
+  });
+
+  test('line breaks are allowed in descriptions; 2-decimal prices and listed categories are accepted', async () => {
+    const freelancer = await registerAndLogin('freelancer');
+    const res = await createGig(freelancer.token, {
+      ...VALID_GIG, description: 'Line one of the offer.\nLine two of the offer.', price: '1499.99', category: 'Video & Animation',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.gig.price).toBe(1499.99);
+    expect(res.body.gig.category).toBe('Video & Animation');
   });
 });
 

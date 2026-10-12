@@ -115,6 +115,7 @@ export default function GigsPage() {
             as="textarea"
             name="details"
             rows={4}
+            maxLength={2000}
             value={form.details}
             onChange={updateField}
             error={fieldErrors.details}
@@ -125,7 +126,9 @@ export default function GigsPage() {
             type="number"
             name="amount"
             min="1"
+            max="1000000"
             step="0.01"
+            inputMode="decimal"
             value={form.amount}
             onChange={updateField}
             error={fieldErrors.amount}

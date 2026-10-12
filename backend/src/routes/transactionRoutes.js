@@ -20,6 +20,7 @@ const { authenticate, authorise } = require('../middleware/auth');
 const { bookingLimiter }          = require('../middleware/rateLimiter');
 const validate  = require('../middleware/validate');
 const { ROLES } = require('../config/constants');
+const { isString, stringField, multiLine, moneyField } = require('../middleware/fieldRules');
 
 const router = Router();
 
@@ -29,15 +30,13 @@ router.post(
   authenticate,
   authorise(ROLES.CLIENT),
   [
-    body('gigId').isMongoId().withMessage('A valid gig ID is required.'),
-    body('details')
-      .isString().withMessage('Work details must be text.')
-      .trim().notEmpty().withMessage('Work details are required.')
+    body('gigId')
+      .custom(isString).withMessage('A valid gig ID is required.').bail()
+      .isMongoId().withMessage('A valid gig ID is required.'),
+    multiLine(stringField('details', 'Work details'), 'Work details')
       .isLength({ min: 10, max: 2000 }).withMessage('Work details must be 10–2000 characters.')
       .escape(),
-    body('amount')
-      .notEmpty().withMessage('Amount is required.')
-      .isFloat({ min: 1, max: 1000000 }).withMessage('Amount must be a number between 1 and 1 000 000.'),
+    moneyField('amount', 'Amount'),
   ],
   validate,
   createTransaction
@@ -49,7 +48,9 @@ router.patch(
   authorise(ROLES.FREELANCER),
   [
     param('id').isMongoId().withMessage('Invalid request ID.'),
-    body('status').isIn(['accepted', 'declined']).withMessage('Status must be "accepted" or "declined".'),
+    body('status')
+      .custom(isString).withMessage('Status must be "accepted" or "declined".').bail()
+      .isIn(['accepted', 'declined']).withMessage('Status must be "accepted" or "declined".'),
   ],
   validate,
   respondToTransaction

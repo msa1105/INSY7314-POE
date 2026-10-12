@@ -20,6 +20,9 @@ const {
 const { authenticate, authorise } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const { ROLES } = require('../config/constants');
+const {
+  GIG_CATEGORIES, TITLE_CHARS, HAS_LETTER, isString, stringField, singleLine, multiLine, moneyField,
+} = require('../middleware/fieldRules');
 
 const router = Router();
 
@@ -30,26 +33,19 @@ const router = Router();
  * each field is optional but, when present, must pass the same rules.
  */
 function gigFieldValidation({ optional }) {
-  const field = (name) => (optional ? body(name).optional() : body(name));
   return [
-    field('title')
-      .isString().withMessage('Title must be text.')
-      .trim().notEmpty().withMessage('Title is required.')
-      .isLength({ min: 5, max: 100 }).withMessage('Title must be 5–100 characters.')
+    singleLine(stringField('title', 'Title', { optional }), 'Title')
+      .isLength({ min: 5, max: 100 }).withMessage('Title must be 5–100 characters.').bail()
+      .matches(TITLE_CHARS).withMessage('Title may only contain letters, numbers, spaces and basic punctuation.').bail()
+      .matches(HAS_LETTER).withMessage('Title must contain at least one letter.')
       .escape(),
-    field('description')
-      .isString().withMessage('Description must be text.')
-      .trim().notEmpty().withMessage('Description is required.')
+    multiLine(stringField('description', 'Description', { optional }), 'Description')
       .isLength({ min: 10, max: 2000 }).withMessage('Description must be 10–2000 characters.')
       .escape(),
-    field('price')
-      .notEmpty().withMessage('Price is required.')
-      .isFloat({ min: 1, max: 1000000 }).withMessage('Price must be a number between 1 and 1 000 000.'),
-    field('category')
-      .isString().withMessage('Category must be text.')
-      .trim().notEmpty().withMessage('Category is required.')
-      .isLength({ max: 50 }).withMessage('Category must be under 50 characters.')
-      .escape(),
+    moneyField('price', 'Price', { optional }),
+    (optional ? body('category').optional() : body('category'))
+      .custom(isString).withMessage('Category is required.').bail()
+      .isIn(GIG_CATEGORIES).withMessage('Choose a category from the list.'),
   ];
 }
 
