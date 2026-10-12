@@ -2,16 +2,25 @@
 
 ## Now / Next / Known issues
 
-- **Now:** Postman screenshots captured for all 63 requests (`images/Postman Part2/`). Awaiting review.
+- **Now:** README updated for Part 2 and 18 verified references added. Awaiting review.
 - **Next:**
-  - Update the README (job requests, validation rules, endpoints, RBAC table, screenshots, test counts, Docker and CI).
-  - Add code references (accessed 11 October 2026).
-  - Commit, once a git name and email are configured.
-  - Record the Part 2 demo video and add its link.
+  - Record the Part 2 demo video and add its link to the README.
+  - Push `feature/job-requests` and open a pull request into `main`.
 - **Known issues:**
-  - `docker-compose.yml` still targets the old JSON store and has no MongoDB service.
-  - The frontend CSP is only sent by `npm run preview`, not `npm run dev`.
+  - The frontend CSP is only sent by `npm run preview`, not `npm run dev` (documented in the README).
   - The git-native v3 collection under `postman/collections/` still only covers Part 1. The JSON collection is the complete one.
+
+## 2026-10-12 – README and references
+
+- **README:** updated throughout for the Part 2 changes.
+  - Features, RBAC and endpoints now describe job requests, including a request and a response example.
+  - The validation rules, the input-hardening threat row and the new test counts are documented.
+  - New sections cover running with Docker and CI.
+  - The app screenshots are now in a grid, with links to the Part 1 and Part 2 Postman evidence.
+  - There is a new References section.
+- **References:** 18 references were added as comments above the code they informed, using the module's format (accessed 11 October 2026).
+  - 10 are Stack Overflow questions. Each link was opened in a browser, and the author and year were read from the page.
+  - 8 are official documentation (Mongoose, OWASP, Auth0 `jsonwebtoken`, Helmet, express-validator, MDN). Each returned HTTP 200 when tested.
 
 ## 2026-10-12 – Input hardening, category list, tooling fixes, Postman evidence
 
