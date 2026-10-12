@@ -74,6 +74,12 @@ async function respondToTransaction(req, res, next) {
       return res.status(403).json({ error: 'You may only respond to requests sent to you.' });
     }
 
+    /* Mongoose, n.d.
+     * How to Use findOneAndUpdate() in Mongoose
+     * Mongoose Documentation
+     * https://mongoosejs.com/docs/tutorials/findoneandupdate.html
+     * Accessed: 11 October 2026
+     */
     // Conditional update so a request can only ever be answered once,
     // even if two responses arrive at the same time.
     const updated = await Transaction.findOneAndUpdate(

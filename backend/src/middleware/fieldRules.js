@@ -14,6 +14,24 @@
  *    punctuation); money is a plain decimal with at most 2 decimal places.
  */
 
+/* Micah Bala, 2019
+ * How to implement validation in a separate file using express-validator
+ * Stack Overflow
+ * https://stackoverflow.com/questions/55772477/how-to-implement-validation-in-a-separate-file-using-express-validator
+ * Accessed: 11 October 2026
+ */
+/* express-validator, n.d.
+ * The Validation Chain
+ * express-validator Documentation
+ * https://express-validator.github.io/docs/guides/validation-chain
+ * Accessed: 11 October 2026
+ */
+/* OWASP Foundation, n.d.
+ * Input Validation Cheat Sheet
+ * OWASP Cheat Sheet Series
+ * https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html
+ * Accessed: 11 October 2026
+ */
 const { body } = require('express-validator');
 
 const GIG_CATEGORIES = Object.freeze([
@@ -24,6 +42,24 @@ const GIG_CATEGORIES = Object.freeze([
 const MONEY_MIN = 1;
 const MONEY_MAX = 1000000;
 
+/* user606521, 2014
+ * How to remove control characters from string?
+ * Stack Overflow
+ * https://stackoverflow.com/questions/26741455/how-to-remove-control-characters-from-string
+ * Accessed: 11 October 2026
+ */
+/* maerics, 2011
+ * Matching a Unicode "name" with a JavaScript Regular Expression
+ * Stack Overflow
+ * https://stackoverflow.com/questions/5571096/matching-a-unicode-name-with-a-javascript-regular-expression
+ * Accessed: 11 October 2026
+ */
+/* MDN contributors, 2026
+ * Unicode character class escape: \p{...}, \P{...}
+ * MDN Web Docs
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape
+ * Accessed: 11 October 2026
+ */
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHARS           = /[\u0000-\u001F\u007F]/;
 // eslint-disable-next-line no-control-regex
@@ -52,6 +88,12 @@ const singleLine = (chain, label) =>
 const multiLine = (chain, label) =>
   chain.not().matches(CONTROL_CHARS_EXCEPT_NL).withMessage(`${label} contains characters that are not allowed.`).bail();
 
+/* Alexander, 2020
+ * Validate input is within a numeric range, possibly a float, using express-validator
+ * Stack Overflow
+ * https://stackoverflow.com/questions/63404065/validate-input-is-within-a-numeric-range-possibly-a-float-using-express-valida
+ * Accessed: 11 October 2026
+ */
 /** Money amount: a number (or numeric string) between 1 and 1 000 000 with at most 2 decimals. */
 function moneyField(name, label, { optional = false } = {}) {
   const chain = optional ? body(name).optional() : body(name);

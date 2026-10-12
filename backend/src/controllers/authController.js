@@ -28,6 +28,12 @@ const JWT_EXPIRES = process.env.JWT_EXPIRES_IN || '1h';
 // Dummy hash used to prevent timing-based user enumeration attacks.
 // It must be a REAL bcrypt hash at the same cost as stored hashes –
 // bcrypt rejects malformed hashes instantly, which would defeat the purpose.
+/* adnan kamili, 2016
+ * Is bcrypt.compare vulnerable to timing attack
+ * Stack Overflow
+ * https://stackoverflow.com/questions/35620979/is-bcrypt-compare-vulnerable-to-timing-attack
+ * Accessed: 11 October 2026
+ */
 const DUMMY_HASH = bcrypt.hashSync('timing-normalisation-dummy', SALT_ROUNDS);
 
 // ── Register ───────────────────────────────────────────────────────────────
@@ -74,6 +80,18 @@ async function register(req, res, next) {
 
 // ── Login ──────────────────────────────────────────────────────────────────
 
+/* Daniel Gartmann, 2016
+ * How to prevent user enumeration attacks for a login system?
+ * Stack Overflow
+ * https://stackoverflow.com/questions/35827127/how-to-prevent-user-enumeration-attacks-for-a-login-system
+ * Accessed: 11 October 2026
+ */
+/* OWASP Foundation, n.d.
+ * Authentication Cheat Sheet
+ * OWASP Cheat Sheet Series
+ * https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
+ * Accessed: 11 October 2026
+ */
 /**
  * POST /api/auth/login
  * Body: { email, password }

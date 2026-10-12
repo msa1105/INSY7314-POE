@@ -35,6 +35,12 @@ const logger       = require('./utils/logger');
 
 const app = express();
 
+/* Helmet.js, n.d.
+ * Helmet.js
+ * Helmet Documentation
+ * https://helmetjs.github.io/
+ * Accessed: 11 October 2026
+ */
 // ── Security Headers (Helmet) ──────────────────────────────────────────────
 // Helmet sets various HTTP headers to protect against well-known web
 // vulnerabilities (XSS, clickjacking, MIME sniffing, etc.)

@@ -20,6 +20,12 @@ const rateLimit = require('express-rate-limit');
 
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
+/* xyz83242, 2019
+ * express-rate-limit - catching the message
+ * Stack Overflow
+ * https://stackoverflow.com/questions/58486616/express-rate-limit-catching-the-message
+ * Accessed: 11 October 2026
+ */
 function jsonLimiter({ windowMs, max, message }) {
   return rateLimit({
     windowMs,
