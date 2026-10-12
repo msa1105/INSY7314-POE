@@ -1,205 +1,255 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="HustleHub+ API – Part 2" tests="50" time="2.639">
-  <testsuite name="1. Health &amp; Security Headers / GET /api/health" id="387693b6-bcc1-41d4-9cda-648e96900290" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.061">
-    <testcase name="Status is 200" time="0.061" classname="1HealthAmpSecurityHeadersGetApiHealth"/>
-    <testcase name="Service is ok" time="0.061" classname="1HealthAmpSecurityHeadersGetApiHealth"/>
+<testsuites name="HustleHub+ API – Part 2" tests="63" time="1.645">
+  <testsuite name="1. Health &amp; Security Headers / GET /api/health" id="3d9f7309-69d2-40e8-844c-9d8492249dac" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.025">
+    <testcase name="Status is 200" time="0.025" classname="1HealthAmpSecurityHeadersGetApiHealth"/>
+    <testcase name="Service is ok" time="0.025" classname="1HealthAmpSecurityHeadersGetApiHealth"/>
   </testsuite>
-  <testsuite name="1. Health &amp; Security Headers / Security headers (Helmet + CSP)" id="f4926530-133c-4897-b750-8660fc2f9d24" timestamp="2026-10-11T20:08:14.585Z" tests="5" failures="0" errors="0" time="0.006">
-    <testcase name="Status is 200" time="0.006" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
-    <testcase name="Content-Security-Policy is restrictive" time="0.006" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
-    <testcase name="HSTS enabled for 1 year" time="0.006" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
-    <testcase name="nosniff set" time="0.006" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
-    <testcase name="X-Powered-By hidden" time="0.006" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
+  <testsuite name="1. Health &amp; Security Headers / Security headers (Helmet + CSP)" id="56a499f0-7872-4e8f-9fb4-3f3f545675f1" timestamp="2026-10-12T16:39:45.162Z" tests="5" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 200" time="0.002" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
+    <testcase name="Content-Security-Policy is restrictive" time="0.002" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
+    <testcase name="HSTS enabled for 1 year" time="0.002" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
+    <testcase name="nosniff set" time="0.002" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
+    <testcase name="X-Powered-By hidden" time="0.002" classname="1HealthAmpSecurityHeadersSecurityHeadersHelmetCsp"/>
   </testsuite>
-  <testsuite name="2. Authentication / Register – Freelancer (201)" id="b48ab193-ebd4-4694-9cf3-5b264378cfd1" timestamp="2026-10-11T20:08:14.585Z" tests="4" failures="0" errors="0" time="0.405">
-    <testcase name="Status is 201" time="0.405" classname="2AuthenticationRegisterFreelancer201"/>
-    <testcase name="Returns a JWT" time="0.405" classname="2AuthenticationRegisterFreelancer201"/>
-    <testcase name="Role is freelancer" time="0.405" classname="2AuthenticationRegisterFreelancer201"/>
-    <testcase name="No sensitive data leaked" time="0.405" classname="2AuthenticationRegisterFreelancer201"/>
+  <testsuite name="2. Authentication / Register – Freelancer (201)" id="aae7113b-c009-4f1c-9489-2fd7190c4547" timestamp="2026-10-12T16:39:45.162Z" tests="4" failures="0" errors="0" time="0.220">
+    <testcase name="Status is 201" time="0.220" classname="2AuthenticationRegisterFreelancer201"/>
+    <testcase name="Returns a JWT" time="0.220" classname="2AuthenticationRegisterFreelancer201"/>
+    <testcase name="Role is freelancer" time="0.220" classname="2AuthenticationRegisterFreelancer201"/>
+    <testcase name="No sensitive data leaked" time="0.220" classname="2AuthenticationRegisterFreelancer201"/>
   </testsuite>
-  <testsuite name="2. Authentication / Register – Second Freelancer (201)" id="496f06fe-f241-4291-972d-9ad36f821afc" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.322">
-    <testcase name="Status is 201" time="0.322" classname="2AuthenticationRegisterSecondFreelancer201"/>
-    <testcase name="Returns a JWT" time="0.322" classname="2AuthenticationRegisterSecondFreelancer201"/>
+  <testsuite name="2. Authentication / Register – Second Freelancer (201)" id="ab26013a-a5fc-4733-b6ea-d3facd7fa357" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.218">
+    <testcase name="Status is 201" time="0.218" classname="2AuthenticationRegisterSecondFreelancer201"/>
+    <testcase name="Returns a JWT" time="0.218" classname="2AuthenticationRegisterSecondFreelancer201"/>
   </testsuite>
-  <testsuite name="2. Authentication / Register – Client (201)" id="2c8440d2-eedb-4840-8716-41f94884a87a" timestamp="2026-10-11T20:08:14.585Z" tests="3" failures="0" errors="0" time="0.324">
-    <testcase name="Status is 201" time="0.324" classname="2AuthenticationRegisterClient201"/>
-    <testcase name="Role is client" time="0.324" classname="2AuthenticationRegisterClient201"/>
-    <testcase name="No sensitive data leaked" time="0.324" classname="2AuthenticationRegisterClient201"/>
+  <testsuite name="2. Authentication / Register – Client (201)" id="d9383e7e-3c49-48c0-8bd2-7e8f64f52530" timestamp="2026-10-12T16:39:45.162Z" tests="3" failures="0" errors="0" time="0.211">
+    <testcase name="Status is 201" time="0.211" classname="2AuthenticationRegisterClient201"/>
+    <testcase name="Role is client" time="0.211" classname="2AuthenticationRegisterClient201"/>
+    <testcase name="No sensitive data leaked" time="0.211" classname="2AuthenticationRegisterClient201"/>
   </testsuite>
-  <testsuite name="2. Authentication / Register – Duplicate Email (409)" id="53dde742-1730-4cad-bd51-3f863473328b" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.008">
-    <testcase name="Status is 409" time="0.008" classname="2AuthenticationRegisterDuplicateEmail409"/>
-    <testcase name="Error message is meaningful" time="0.008" classname="2AuthenticationRegisterDuplicateEmail409"/>
+  <testsuite name="2. Authentication / Register – Duplicate Email (409)" id="b38a44a1-63fb-4a92-8594-0f542aa8492f" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 409" time="0.003" classname="2AuthenticationRegisterDuplicateEmail409"/>
+    <testcase name="Error message is meaningful" time="0.003" classname="2AuthenticationRegisterDuplicateEmail409"/>
   </testsuite>
-  <testsuite name="2. Authentication / Register – Weak Password (422)" id="37d911f0-737f-42b0-8e95-a358cd83d61c" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.005">
-    <testcase name="Status is 422" time="0.005" classname="2AuthenticationRegisterWeakPassword422"/>
-    <testcase name="Field error for password" time="0.005" classname="2AuthenticationRegisterWeakPassword422"/>
+  <testsuite name="2. Authentication / Register – Weak Password (422)" id="ab94a22d-0620-4978-9614-b492b57f1da9" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 422" time="0.003" classname="2AuthenticationRegisterWeakPassword422"/>
+    <testcase name="Field error for password" time="0.003" classname="2AuthenticationRegisterWeakPassword422"/>
   </testsuite>
-  <testsuite name="2. Authentication / Register – Invalid Email (422)" id="e8569385-60f4-479b-a962-2fa90b5b7eeb" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.007">
-    <testcase name="Status is 422" time="0.007" classname="2AuthenticationRegisterInvalidEmail422"/>
-    <testcase name="Field error for email" time="0.007" classname="2AuthenticationRegisterInvalidEmail422"/>
+  <testsuite name="2. Authentication / Register – Invalid Email (422)" id="61e7f517-74e2-4eed-b737-365a65529ffe" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="2AuthenticationRegisterInvalidEmail422"/>
+    <testcase name="Field error for email" time="0.002" classname="2AuthenticationRegisterInvalidEmail422"/>
   </testsuite>
-  <testsuite name="2. Authentication / Register – Admin Role Not Allowed (422)" id="6c61dd42-e0d8-486c-9b89-01cdbdf9c26b" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.006">
-    <testcase name="Status is 422" time="0.006" classname="2AuthenticationRegisterAdminRoleNotAllowed422"/>
-    <testcase name="Field error for role" time="0.006" classname="2AuthenticationRegisterAdminRoleNotAllowed422"/>
+  <testsuite name="2. Authentication / Register – Invalid Name Characters (422)" id="2c3a2751-dfdd-4baf-9a51-0e8c53e023be" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="2AuthenticationRegisterInvalidNameCharacters422"/>
+    <testcase name="Field error for name" time="0.002" classname="2AuthenticationRegisterInvalidNameCharacters422"/>
   </testsuite>
-  <testsuite name="2. Authentication / Login – NoSQL Injection Attempt (rejected)" id="0fcc39ba-a234-4ca1-9042-58bba0c911c3" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.004">
-    <testcase name="Rejected with 401 or 422" time="0.004" classname="2AuthenticationLoginNoSqlInjectionAttemptRejected"/>
-    <testcase name="No token issued" time="0.004" classname="2AuthenticationLoginNoSqlInjectionAttemptRejected"/>
+  <testsuite name="2. Authentication / Register – Admin Role Not Allowed (422)" id="1f6f4e33-fd60-4a28-b336-f2f4a1a6c2f4" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="2AuthenticationRegisterAdminRoleNotAllowed422"/>
+    <testcase name="Field error for role" time="0.002" classname="2AuthenticationRegisterAdminRoleNotAllowed422"/>
   </testsuite>
-  <testsuite name="2. Authentication / Login – Wrong Password (401)" id="da57a040-3949-489e-83fa-4e0ed0bf0405" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.311">
-    <testcase name="Status is 401" time="0.311" classname="2AuthenticationLoginWrongPassword401"/>
-    <testcase name="Generic message" time="0.311" classname="2AuthenticationLoginWrongPassword401"/>
+  <testsuite name="2. Authentication / Login – NoSQL Injection Attempt (rejected)" id="d1975dad-b07f-4a1c-bcda-7cbe7d02a9d1" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Rejected with 401 or 422" time="0.002" classname="2AuthenticationLoginNoSqlInjectionAttemptRejected"/>
+    <testcase name="No token issued" time="0.002" classname="2AuthenticationLoginNoSqlInjectionAttemptRejected"/>
   </testsuite>
-  <testsuite name="2. Authentication / Login – Unknown Email (401)" id="cf342456-07fe-4631-a19b-a3d338c60abe" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.306">
-    <testcase name="Status is 401" time="0.306" classname="2AuthenticationLoginUnknownEmail401"/>
-    <testcase name="Same generic message (no user enumeration)" time="0.306" classname="2AuthenticationLoginUnknownEmail401"/>
+  <testsuite name="2. Authentication / Login – Wrong Password (401)" id="0a922f26-81cf-48d4-a8d6-eb0ffee02b39" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.203">
+    <testcase name="Status is 401" time="0.203" classname="2AuthenticationLoginWrongPassword401"/>
+    <testcase name="Generic message" time="0.203" classname="2AuthenticationLoginWrongPassword401"/>
   </testsuite>
-  <testsuite name="2. Authentication / Login – Client Valid Credentials (200)" id="a61f6458-35dc-46e1-a8be-43e0478ddfa3" timestamp="2026-10-11T20:08:14.585Z" tests="3" failures="0" errors="0" time="0.306">
-    <testcase name="Status is 200" time="0.306" classname="2AuthenticationLoginClientValidCredentials200"/>
-    <testcase name="Returns a JWT" time="0.306" classname="2AuthenticationLoginClientValidCredentials200"/>
-    <testcase name="No sensitive data leaked" time="0.306" classname="2AuthenticationLoginClientValidCredentials200"/>
+  <testsuite name="2. Authentication / Login – Unknown Email (401)" id="4227e7a3-1b7a-4555-83be-c54d189a87da" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.201">
+    <testcase name="Status is 401" time="0.201" classname="2AuthenticationLoginUnknownEmail401"/>
+    <testcase name="Same generic message (no user enumeration)" time="0.201" classname="2AuthenticationLoginUnknownEmail401"/>
   </testsuite>
-  <testsuite name="2. Authentication / Login – Admin (200)" id="aa3f4067-6e78-4a36-8b42-6406ae42c47d" timestamp="2026-10-11T20:08:14.585Z" tests="3" failures="0" errors="0" time="0.307">
-    <testcase name="Status is 200" time="0.307" classname="2AuthenticationLoginAdmin200"/>
-    <testcase name="Returns a JWT" time="0.307" classname="2AuthenticationLoginAdmin200"/>
-    <testcase name="Role is admin" time="0.307" classname="2AuthenticationLoginAdmin200"/>
+  <testsuite name="2. Authentication / Login – Client Valid Credentials (200)" id="d2395603-b4e4-4580-95f8-34a858118333" timestamp="2026-10-12T16:39:45.162Z" tests="3" failures="0" errors="0" time="0.204">
+    <testcase name="Status is 200" time="0.204" classname="2AuthenticationLoginClientValidCredentials200"/>
+    <testcase name="Returns a JWT" time="0.204" classname="2AuthenticationLoginClientValidCredentials200"/>
+    <testcase name="No sensitive data leaked" time="0.204" classname="2AuthenticationLoginClientValidCredentials200"/>
   </testsuite>
-  <testsuite name="3. Protected Routes (JWT) / Profile – With Token (200)" id="38cbe236-5790-4c96-9052-32e6e8ef0d3e" timestamp="2026-10-11T20:08:14.585Z" tests="3" failures="0" errors="0" time="0.010">
-    <testcase name="Status is 200" time="0.010" classname="3ProtectedRoutesJwtProfileWithToken200"/>
-    <testcase name="Returns own profile" time="0.010" classname="3ProtectedRoutesJwtProfileWithToken200"/>
-    <testcase name="No sensitive data leaked" time="0.010" classname="3ProtectedRoutesJwtProfileWithToken200"/>
+  <testsuite name="2. Authentication / Login – Admin (200)" id="4a63ebfc-94f0-4cee-aebb-76fe5763946a" timestamp="2026-10-12T16:39:45.162Z" tests="3" failures="0" errors="0" time="0.206">
+    <testcase name="Status is 200" time="0.206" classname="2AuthenticationLoginAdmin200"/>
+    <testcase name="Returns a JWT" time="0.206" classname="2AuthenticationLoginAdmin200"/>
+    <testcase name="Role is admin" time="0.206" classname="2AuthenticationLoginAdmin200"/>
   </testsuite>
-  <testsuite name="3. Protected Routes (JWT) / Profile – No Token (401)" id="e0340ce8-7155-47e6-8e6e-75140dc105fb" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.002">
-    <testcase name="Status is 401" time="0.002" classname="3ProtectedRoutesJwtProfileNoToken401"/>
-    <testcase name="Error message is meaningful" time="0.002" classname="3ProtectedRoutesJwtProfileNoToken401"/>
+  <testsuite name="3. Protected Routes (JWT) / Profile – With Token (200)" id="4aefb7cc-b92b-4a64-b2e6-45c8c37a3ac7" timestamp="2026-10-12T16:39:45.162Z" tests="3" failures="0" errors="0" time="0.004">
+    <testcase name="Status is 200" time="0.004" classname="3ProtectedRoutesJwtProfileWithToken200"/>
+    <testcase name="Returns own profile" time="0.004" classname="3ProtectedRoutesJwtProfileWithToken200"/>
+    <testcase name="No sensitive data leaked" time="0.004" classname="3ProtectedRoutesJwtProfileWithToken200"/>
   </testsuite>
-  <testsuite name="3. Protected Routes (JWT) / Profile – Tampered Token (401)" id="757693fc-e6c3-4728-a338-1104c3ebd07f" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.004">
-    <testcase name="Status is 401" time="0.004" classname="3ProtectedRoutesJwtProfileTamperedToken401"/>
-    <testcase name="Error message is meaningful" time="0.004" classname="3ProtectedRoutesJwtProfileTamperedToken401"/>
+  <testsuite name="3. Protected Routes (JWT) / Profile – No Token (401)" id="bfe536e3-4880-4ee1-8bd7-05dab02babad" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.001">
+    <testcase name="Status is 401" time="0.001" classname="3ProtectedRoutesJwtProfileNoToken401"/>
+    <testcase name="Error message is meaningful" time="0.001" classname="3ProtectedRoutesJwtProfileNoToken401"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Create Gig – Freelancer (201)" id="8b0cd06a-f9fb-49cf-a5d5-350bbd0869ea" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.010">
-    <testcase name="Status is 201" time="0.010" classname="4GigsFreelancerCreateGigFreelancer201"/>
-    <testcase name="Gig has an id and price" time="0.010" classname="4GigsFreelancerCreateGigFreelancer201"/>
+  <testsuite name="3. Protected Routes (JWT) / Profile – Tampered Token (401)" id="99fc4dec-f1ef-477b-bfea-b4c4de443257" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 401" time="0.002" classname="3ProtectedRoutesJwtProfileTamperedToken401"/>
+    <testcase name="Error message is meaningful" time="0.002" classname="3ProtectedRoutesJwtProfileTamperedToken401"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Create Gig – Client Forbidden (403)" id="5472ae28-a1c8-4535-93c5-6ccca8403f2d" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.005">
-    <testcase name="Status is 403" time="0.005" classname="4GigsFreelancerCreateGigClientForbidden403"/>
-    <testcase name="Error message is meaningful" time="0.005" classname="4GigsFreelancerCreateGigClientForbidden403"/>
+  <testsuite name="4. Gigs (Freelancer) / Create Gig – Freelancer (201)" id="c6204bc3-d1c0-44c2-9b2c-6edb22d6282f" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.005">
+    <testcase name="Status is 201" time="0.005" classname="4GigsFreelancerCreateGigFreelancer201"/>
+    <testcase name="Gig has an id and price" time="0.005" classname="4GigsFreelancerCreateGigFreelancer201"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Create Gig – Invalid Input (422)" id="d8f90ae6-e721-454c-a17f-38dccd17e744" timestamp="2026-10-11T20:08:14.585Z" tests="3" failures="0" errors="0" time="0.006">
-    <testcase name="Status is 422" time="0.006" classname="4GigsFreelancerCreateGigInvalidInput422"/>
-    <testcase name="Field error for title" time="0.006" classname="4GigsFreelancerCreateGigInvalidInput422"/>
-    <testcase name="Field error for price" time="0.006" classname="4GigsFreelancerCreateGigInvalidInput422"/>
+  <testsuite name="4. Gigs (Freelancer) / Create Gig – Client Forbidden (403)" id="4382aa29-425f-4c71-a999-9db3b2051538" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 403" time="0.002" classname="4GigsFreelancerCreateGigClientForbidden403"/>
+    <testcase name="Error message is meaningful" time="0.002" classname="4GigsFreelancerCreateGigClientForbidden403"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Create Gig – XSS Payload Is Escaped (201)" id="0a6613f8-fb12-4352-9e6a-2c5ddcdc1707" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.008">
-    <testcase name="Status is 201" time="0.008" classname="4GigsFreelancerCreateGigXssPayloadIsEscaped201"/>
-    <testcase name="HTML is escaped before storage" time="0.008" classname="4GigsFreelancerCreateGigXssPayloadIsEscaped201"/>
+  <testsuite name="4. Gigs (Freelancer) / Create Gig – Invalid Input (422)" id="8faf028e-d6da-4207-9274-d36649f2573e" timestamp="2026-10-12T16:39:45.162Z" tests="4" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 422" time="0.003" classname="4GigsFreelancerCreateGigInvalidInput422"/>
+    <testcase name="Field error for title" time="0.003" classname="4GigsFreelancerCreateGigInvalidInput422"/>
+    <testcase name="Field error for price" time="0.003" classname="4GigsFreelancerCreateGigInvalidInput422"/>
+    <testcase name="Field error for category" time="0.003" classname="4GigsFreelancerCreateGigInvalidInput422"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / List Gigs – Any Authenticated User (200)" id="6000699d-68b3-4267-99c7-d1d4e70f93db" timestamp="2026-10-11T20:08:14.585Z" tests="3" failures="0" errors="0" time="0.018">
-    <testcase name="Status is 200" time="0.018" classname="4GigsFreelancerListGigsAnyAuthenticatedUser200"/>
-    <testcase name="Contains the new gig" time="0.018" classname="4GigsFreelancerListGigsAnyAuthenticatedUser200"/>
-    <testcase name="Freelancer shown by name only" time="0.018" classname="4GigsFreelancerListGigsAnyAuthenticatedUser200"/>
+  <testsuite name="4. Gigs (Freelancer) / Create Gig – XSS Payload Is Escaped (201)" id="cba56f3c-87a6-478e-b80c-77835f3c09d4" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.004">
+    <testcase name="Status is 201" time="0.004" classname="4GigsFreelancerCreateGigXssPayloadIsEscaped201"/>
+    <testcase name="HTML is escaped before storage" time="0.004" classname="4GigsFreelancerCreateGigXssPayloadIsEscaped201"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / List Gigs – No Token (401)" id="c4cfddbf-e5c5-4023-9a9e-85ce44711567" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.002">
-    <testcase name="Status is 401" time="0.002" classname="4GigsFreelancerListGigsNoToken401"/>
+  <testsuite name="4. Gigs (Freelancer) / Create Gig – HTML In Title Rejected (422)" id="2788d310-9f72-4f3c-836a-7597a0f5b2ba" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="4GigsFreelancerCreateGigHtmlInTitleRejected422"/>
+    <testcase name="Field error for title" time="0.002" classname="4GigsFreelancerCreateGigHtmlInTitleRejected422"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Get Gig By Id (200)" id="093711a0-831d-47fe-b385-32ec71487b98" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.009">
-    <testcase name="Status is 200" time="0.009" classname="4GigsFreelancerGetGigById200"/>
-    <testcase name="Correct gig" time="0.009" classname="4GigsFreelancerGetGigById200"/>
+  <testsuite name="4. Gigs (Freelancer) / Create Gig – Category Not In List (422)" id="e114d2cb-03ad-4962-a59b-58c8aca6fee7" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="4GigsFreelancerCreateGigCategoryNotInList422"/>
+    <testcase name="Field error for category" time="0.002" classname="4GigsFreelancerCreateGigCategoryNotInList422"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Get Gig – Invalid Id (422)" id="037a016d-a33f-411b-87e2-535b51d4de92" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.004">
-    <testcase name="Status is 422" time="0.004" classname="4GigsFreelancerGetGigInvalidId422"/>
+  <testsuite name="4. Gigs (Freelancer) / List Gigs – Any Authenticated User (200)" id="1af56d3f-4347-41b7-af16-8cf449b49273" timestamp="2026-10-12T16:39:45.162Z" tests="3" failures="0" errors="0" time="0.007">
+    <testcase name="Status is 200" time="0.007" classname="4GigsFreelancerListGigsAnyAuthenticatedUser200"/>
+    <testcase name="Contains the new gig" time="0.007" classname="4GigsFreelancerListGigsAnyAuthenticatedUser200"/>
+    <testcase name="Freelancer shown by name only" time="0.007" classname="4GigsFreelancerListGigsAnyAuthenticatedUser200"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / My Gigs – Freelancer (200)" id="008a70b4-c15d-4267-a452-70a891f2c92c" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.007">
-    <testcase name="Status is 200" time="0.007" classname="4GigsFreelancerMyGigsFreelancer200"/>
-    <testcase name="Only own gigs (2)" time="0.007" classname="4GigsFreelancerMyGigsFreelancer200"/>
+  <testsuite name="4. Gigs (Freelancer) / List Gigs – No Token (401)" id="5097511c-78dc-4f62-b0e5-c97babdb961a" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.001">
+    <testcase name="Status is 401" time="0.001" classname="4GigsFreelancerListGigsNoToken401"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / My Gigs – Client Forbidden (403)" id="c798de69-9bec-4a48-869a-ad29b9158f8e" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.005">
-    <testcase name="Status is 403" time="0.005" classname="4GigsFreelancerMyGigsClientForbidden403"/>
+  <testsuite name="4. Gigs (Freelancer) / Get Gig By Id (200)" id="9888ba56-2b29-4614-8870-50f76e6aab47" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.004">
+    <testcase name="Status is 200" time="0.004" classname="4GigsFreelancerGetGigById200"/>
+    <testcase name="Correct gig" time="0.004" classname="4GigsFreelancerGetGigById200"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Update Gig – Owner (200)" id="16640bf2-1999-40be-bd6a-8b6cc4a88cfd" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.010">
-    <testcase name="Status is 200" time="0.010" classname="4GigsFreelancerUpdateGigOwner200"/>
-    <testcase name="Price and title updated" time="0.010" classname="4GigsFreelancerUpdateGigOwner200"/>
+  <testsuite name="4. Gigs (Freelancer) / Get Gig – Invalid Id (422)" id="44e1f429-9644-48ab-9b50-ffc15bfe7c03" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.001">
+    <testcase name="Status is 422" time="0.001" classname="4GigsFreelancerGetGigInvalidId422"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Update Gig – Another Freelancer (403)" id="0ffe59f8-c63c-4eda-8f20-522c20b2e1e1" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.007">
-    <testcase name="Status is 403" time="0.007" classname="4GigsFreelancerUpdateGigAnotherFreelancer403"/>
-    <testcase name="Error message is meaningful" time="0.007" classname="4GigsFreelancerUpdateGigAnotherFreelancer403"/>
+  <testsuite name="4. Gigs (Freelancer) / My Gigs – Freelancer (200)" id="0f923666-5c16-4f98-b14c-2d9561877080" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 200" time="0.003" classname="4GigsFreelancerMyGigsFreelancer200"/>
+    <testcase name="Only own gigs (2)" time="0.003" classname="4GigsFreelancerMyGigsFreelancer200"/>
   </testsuite>
-  <testsuite name="4. Gigs (Freelancer) / Update Gig – Invalid Input (422)" id="48dcf208-08cb-4305-ab0b-6cf8a52648ac" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.014">
-    <testcase name="Status is 422" time="0.014" classname="4GigsFreelancerUpdateGigInvalidInput422"/>
-    <testcase name="Field error for price" time="0.014" classname="4GigsFreelancerUpdateGigInvalidInput422"/>
+  <testsuite name="4. Gigs (Freelancer) / My Gigs – Client Forbidden (403)" id="bae03ace-1a7a-4394-911d-29c6982bce6a" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 403" time="0.002" classname="4GigsFreelancerMyGigsClientForbidden403"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / Book Gig – Client (201)" id="0c94d721-c3bd-44b8-89cb-1c76d872c5f1" timestamp="2026-10-11T20:08:14.585Z" tests="4" failures="0" errors="0" time="0.010">
-    <testcase name="Status is 201" time="0.010" classname="5BookingsAmpTransactionsBookGigClient201"/>
-    <testcase name="Transaction completed (simulated payment)" time="0.010" classname="5BookingsAmpTransactionsBookGigClient201"/>
-    <testcase name="Amount taken from the gig, not the request" time="0.010" classname="5BookingsAmpTransactionsBookGigClient201"/>
-    <testcase name="Linked to gig, client and freelancer" time="0.010" classname="5BookingsAmpTransactionsBookGigClient201"/>
+  <testsuite name="4. Gigs (Freelancer) / Update Gig – Owner (200)" id="e7f8f0df-dbc9-4683-8b38-01444b5f0525" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.005">
+    <testcase name="Status is 200" time="0.005" classname="4GigsFreelancerUpdateGigOwner200"/>
+    <testcase name="Price and title updated" time="0.005" classname="4GigsFreelancerUpdateGigOwner200"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / Book Gig – Freelancer Forbidden (403)" id="46091421-1012-40cf-a46b-7dd1a7824c52" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.005">
-    <testcase name="Status is 403" time="0.005" classname="5BookingsAmpTransactionsBookGigFreelancerForbidden403"/>
+  <testsuite name="4. Gigs (Freelancer) / Update Gig – Another Freelancer (403)" id="ad6f35f4-da37-49f7-b1f5-464fe35a9a1f" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 403" time="0.003" classname="4GigsFreelancerUpdateGigAnotherFreelancer403"/>
+    <testcase name="Error message is meaningful" time="0.003" classname="4GigsFreelancerUpdateGigAnotherFreelancer403"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / Book Gig – No Token (401)" id="c7417194-c582-4d76-85dc-20ef9b9ad454" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.003">
-    <testcase name="Status is 401" time="0.003" classname="5BookingsAmpTransactionsBookGigNoToken401"/>
+  <testsuite name="4. Gigs (Freelancer) / Update Gig – Invalid Input (422)" id="50173a2d-0419-433e-a02e-04f9fe8a5af7" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="4GigsFreelancerUpdateGigInvalidInput422"/>
+    <testcase name="Field error for price" time="0.002" classname="4GigsFreelancerUpdateGigInvalidInput422"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / Book Gig – Non-existent Gig (404)" id="02127c88-d4c3-4d94-a036-c2267d42e916" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.006">
-    <testcase name="Status is 404" time="0.006" classname="5BookingsAmpTransactionsBookGigNonExistentGig404"/>
-    <testcase name="Error message is meaningful" time="0.006" classname="5BookingsAmpTransactionsBookGigNonExistentGig404"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Send Request – Client (201)" id="9d244cd9-3ccf-47db-95b9-dafa02b5f701" timestamp="2026-10-12T16:39:45.162Z" tests="5" failures="0" errors="0" time="0.005">
+    <testcase name="Status is 201" time="0.005" classname="5JobRequestsAmpTransactionsSendRequestClient201"/>
+    <testcase name="Request starts as pending" time="0.005" classname="5JobRequestsAmpTransactionsSendRequestClient201"/>
+    <testcase name="Amount is the client's own offer" time="0.005" classname="5JobRequestsAmpTransactionsSendRequestClient201"/>
+    <testcase name="Work details stored" time="0.005" classname="5JobRequestsAmpTransactionsSendRequestClient201"/>
+    <testcase name="Linked to gig, client and freelancer" time="0.005" classname="5JobRequestsAmpTransactionsSendRequestClient201"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / Book Gig – Invalid Gig Id (422)" id="e13ae89b-ddd6-4aa0-bc3f-abf665c25b1c" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.005">
-    <testcase name="Status is 422" time="0.005" classname="5BookingsAmpTransactionsBookGigInvalidGigId422"/>
-    <testcase name="Field error for gigId" time="0.005" classname="5BookingsAmpTransactionsBookGigInvalidGigId422"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Send Request – Missing Details (422)" id="f7617bad-9c2c-4c2d-80e3-e553fb72e450" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="5JobRequestsAmpTransactionsSendRequestMissingDetails422"/>
+    <testcase name="Details field reported" time="0.002" classname="5JobRequestsAmpTransactionsSendRequestMissingDetails422"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / My Bookings – Client (200)" id="e0985398-695f-45de-b084-ddc1baa0f593" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.010">
-    <testcase name="Status is 200" time="0.010" classname="5BookingsAmpTransactionsMyBookingsClient200"/>
-    <testcase name="Client sees their booking" time="0.010" classname="5BookingsAmpTransactionsMyBookingsClient200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Send Request – Invalid Amount (422)" id="1f37377c-69b3-4c45-b2ce-79954bb39810" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="5JobRequestsAmpTransactionsSendRequestInvalidAmount422"/>
+    <testcase name="Amount field reported" time="0.002" classname="5JobRequestsAmpTransactionsSendRequestInvalidAmount422"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / My Bookings – Freelancer Received (200)" id="84fd9266-5287-4d2f-9df4-c97cb4b2f702" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.009">
-    <testcase name="Status is 200" time="0.009" classname="5BookingsAmpTransactionsMyBookingsFreelancerReceived200"/>
-    <testcase name="Freelancer sees booking from client" time="0.009" classname="5BookingsAmpTransactionsMyBookingsFreelancerReceived200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Send Request – Freelancer Forbidden (403)" id="ff03b5f2-2085-4e15-856d-339fef4e17f1" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 403" time="0.003" classname="5JobRequestsAmpTransactionsSendRequestFreelancerForbidden403"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / My Bookings – Other Freelancer Sees None (200)" id="8b8b8ee8-3c3c-4b8c-b0ea-5676b96e5156" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.006">
-    <testcase name="Status is 200" time="0.006" classname="5BookingsAmpTransactionsMyBookingsOtherFreelancerSeesNone200"/>
-    <testcase name="No access to other freelancers' bookings" time="0.006" classname="5BookingsAmpTransactionsMyBookingsOtherFreelancerSeesNone200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Send Request – No Token (401)" id="fc78fbd5-1fc5-49a1-8d13-5d760ad9c289" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.001">
+    <testcase name="Status is 401" time="0.001" classname="5JobRequestsAmpTransactionsSendRequestNoToken401"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / Income Summary – Freelancer (200)" id="a6b1c4ef-7b77-4bcd-a4f7-970f8e2646b6" timestamp="2026-10-11T20:08:14.585Z" tests="3" failures="0" errors="0" time="0.009">
-    <testcase name="Status is 200" time="0.009" classname="5BookingsAmpTransactionsIncomeSummaryFreelancer200"/>
-    <testcase name="Income tracked for the right freelancer" time="0.009" classname="5BookingsAmpTransactionsIncomeSummaryFreelancer200"/>
-    <testcase name="Estimated tax at 25%" time="0.009" classname="5BookingsAmpTransactionsIncomeSummaryFreelancer200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Send Request – Non-existent Gig (404)" id="97b79198-9a39-470f-800a-cf9d364bd0a7" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 404" time="0.003" classname="5JobRequestsAmpTransactionsSendRequestNonExistentGig404"/>
   </testsuite>
-  <testsuite name="5. Bookings &amp; Transactions / Income Summary – Client Forbidden (403)" id="12f87773-e4c8-410b-ad7b-44c955b022e8" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.005">
-    <testcase name="Status is 403" time="0.005" classname="5BookingsAmpTransactionsIncomeSummaryClientForbidden403"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Send Request – Invalid Gig Id (422)" id="1818a75e-2b81-46f0-a0dc-db58ad420077" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="5JobRequestsAmpTransactionsSendRequestInvalidGigId422"/>
   </testsuite>
-  <testsuite name="6. Admin / List Users – Admin (200)" id="310d5b2a-af57-4bfc-a688-2feb0f2845b6" timestamp="2026-10-11T20:08:14.585Z" tests="3" failures="0" errors="0" time="0.007">
-    <testcase name="Status is 200" time="0.007" classname="6AdminListUsersAdmin200"/>
-    <testcase name="Users returned" time="0.007" classname="6AdminListUsersAdmin200"/>
-    <testcase name="No sensitive data leaked" time="0.007" classname="6AdminListUsersAdmin200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / My Requests – Client (200)" id="0fdc4d53-87a2-4330-83b8-2baeeb15c026" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.004">
+    <testcase name="Status is 200" time="0.004" classname="5JobRequestsAmpTransactionsMyRequestsClient200"/>
+    <testcase name="Client sees their pending request" time="0.004" classname="5JobRequestsAmpTransactionsMyRequestsClient200"/>
   </testsuite>
-  <testsuite name="6. Admin / List Users – Client Forbidden (403)" id="2fa1aed1-b1a7-4989-9beb-4c48f520d292" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.006">
-    <testcase name="Status is 403" time="0.006" classname="6AdminListUsersClientForbidden403"/>
+  <testsuite name="5. Job Requests &amp; Transactions / My Requests – Freelancer Received (200)" id="7fa603b1-fa3c-4a2d-a918-0ee0687c8e88" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.005">
+    <testcase name="Status is 200" time="0.005" classname="5JobRequestsAmpTransactionsMyRequestsFreelancerReceived200"/>
+    <testcase name="Freelancer sees request with details" time="0.005" classname="5JobRequestsAmpTransactionsMyRequestsFreelancerReceived200"/>
   </testsuite>
-  <testsuite name="6. Admin / All Transactions – Admin (200)" id="2a4f9521-edd1-487f-8c32-219be3eb8987" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.011">
-    <testcase name="Status is 200" time="0.011" classname="6AdminAllTransactionsAdmin200"/>
-    <testcase name="Includes this run's booking" time="0.011" classname="6AdminAllTransactionsAdmin200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / My Requests – Other Freelancer Sees None (200)" id="ef5d3996-f461-4fb9-9ba0-6a36fb795802" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 200" time="0.002" classname="5JobRequestsAmpTransactionsMyRequestsOtherFreelancerSeesNone200"/>
+    <testcase name="No access to other freelancers' requests" time="0.002" classname="5JobRequestsAmpTransactionsMyRequestsOtherFreelancerSeesNone200"/>
   </testsuite>
-  <testsuite name="6. Admin / All Transactions – Freelancer Forbidden (403)" id="3ec03958-4794-462e-9ba0-b8c4bf746eea" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.004">
-    <testcase name="Status is 403" time="0.004" classname="6AdminAllTransactionsFreelancerForbidden403"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Income – Pending Request Not Counted (200)" id="9de4466b-bd12-4cb0-9ec2-ea6de64c0946" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 200" time="0.003" classname="5JobRequestsAmpTransactionsIncomePendingRequestNotCounted200"/>
+    <testcase name="No income until the request is accepted" time="0.003" classname="5JobRequestsAmpTransactionsIncomePendingRequestNotCounted200"/>
   </testsuite>
-  <testsuite name="6. Admin / Delete Any Gig – Admin (200)" id="cb5b94b5-0e71-4272-bafb-2dff7d1f1cc3" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.010">
-    <testcase name="Status is 200" time="0.010" classname="6AdminDeleteAnyGigAdmin200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Respond – Client Forbidden (403)" id="b671841c-aafc-4068-b9b2-1e066ddb76b1" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 403" time="0.002" classname="5JobRequestsAmpTransactionsRespondClientForbidden403"/>
   </testsuite>
-  <testsuite name="7. Gig Deletion (Ownership) / Delete Gig – Another Freelancer (403)" id="4b29a3e0-106b-43bb-b072-b7b39e46e7ce" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.006">
-    <testcase name="Status is 403" time="0.006" classname="7GigDeletionOwnershipDeleteGigAnotherFreelancer403"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Respond – Admin Forbidden (403)" id="0827c485-9638-43db-a4bf-315271e5c2bc" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 403" time="0.002" classname="5JobRequestsAmpTransactionsRespondAdminForbidden403"/>
   </testsuite>
-  <testsuite name="7. Gig Deletion (Ownership) / Delete Gig – Client (403)" id="127f6cb5-d231-4027-8b82-f1ec91ac02f9" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.005">
-    <testcase name="Status is 403" time="0.005" classname="7GigDeletionOwnershipDeleteGigClient403"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Respond – Another Freelancer (403)" id="5618a114-86a6-4f6f-9495-9df34a811ce0" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 403" time="0.003" classname="5JobRequestsAmpTransactionsRespondAnotherFreelancer403"/>
+    <testcase name="Ownership enforced" time="0.003" classname="5JobRequestsAmpTransactionsRespondAnotherFreelancer403"/>
   </testsuite>
-  <testsuite name="7. Gig Deletion (Ownership) / Delete Gig – Owner (200)" id="8ffd3cfe-b229-4e84-95f8-25c6d094d648" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.007">
-    <testcase name="Status is 200" time="0.007" classname="7GigDeletionOwnershipDeleteGigOwner200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Respond – Invalid Status (422)" id="da117b03-dbb4-43c1-ac69-4a0f50de2e22" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="5JobRequestsAmpTransactionsRespondInvalidStatus422"/>
   </testsuite>
-  <testsuite name="7. Gig Deletion (Ownership) / Get Deleted Gig (404)" id="8e76d28e-54f0-4fb5-b441-c432a15df647" timestamp="2026-10-11T20:08:14.585Z" tests="1" failures="0" errors="0" time="0.007">
-    <testcase name="Status is 404" time="0.007" classname="7GigDeletionOwnershipGetDeletedGig404"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Respond – Invalid Request Id (422)" id="65c14c81-83ba-4ddf-a4ff-46b87b63236d" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 422" time="0.002" classname="5JobRequestsAmpTransactionsRespondInvalidRequestId422"/>
   </testsuite>
-  <testsuite name="7. Gig Deletion (Ownership) / Booking Record Kept After Gig Deletion (200)" id="67b2faa7-ae4c-4be2-b34b-5614e36873d2" timestamp="2026-10-11T20:08:14.585Z" tests="2" failures="0" errors="0" time="0.009">
-    <testcase name="Status is 200" time="0.009" classname="7GigDeletionOwnershipBookingRecordKeptAfterGigDeletion200"/>
-    <testcase name="Transaction history preserved" time="0.009" classname="7GigDeletionOwnershipBookingRecordKeptAfterGigDeletion200"/>
+  <testsuite name="5. Job Requests &amp; Transactions / Accept Request – Owner Freelancer (200)" id="a3eba968-43a4-4951-8a29-8b2713d8e255" timestamp="2026-10-12T16:39:45.162Z" tests="4" failures="0" errors="0" time="0.005">
+    <testcase name="Status is 200" time="0.005" classname="5JobRequestsAmpTransactionsAcceptRequestOwnerFreelancer200"/>
+    <testcase name="Request accepted" time="0.005" classname="5JobRequestsAmpTransactionsAcceptRequestOwnerFreelancer200"/>
+    <testcase name="Acceptance counts as simulated payment" time="0.005" classname="5JobRequestsAmpTransactionsAcceptRequestOwnerFreelancer200"/>
+    <testcase name="Response time recorded" time="0.005" classname="5JobRequestsAmpTransactionsAcceptRequestOwnerFreelancer200"/>
+  </testsuite>
+  <testsuite name="5. Job Requests &amp; Transactions / Respond Again – Already Answered (409)" id="176f790a-3fac-47c4-a013-59a7b7f648ac" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 409" time="0.003" classname="5JobRequestsAmpTransactionsRespondAgainAlreadyAnswered409"/>
+    <testcase name="A request can only be answered once" time="0.003" classname="5JobRequestsAmpTransactionsRespondAgainAlreadyAnswered409"/>
+  </testsuite>
+  <testsuite name="5. Job Requests &amp; Transactions / Income Summary – Freelancer (200)" id="5a95960c-5ffd-4374-83e5-f94532338b31" timestamp="2026-10-12T16:39:45.162Z" tests="3" failures="0" errors="0" time="0.004">
+    <testcase name="Status is 200" time="0.004" classname="5JobRequestsAmpTransactionsIncomeSummaryFreelancer200"/>
+    <testcase name="Accepted offer counted as income" time="0.004" classname="5JobRequestsAmpTransactionsIncomeSummaryFreelancer200"/>
+    <testcase name="Estimated tax at 25%" time="0.004" classname="5JobRequestsAmpTransactionsIncomeSummaryFreelancer200"/>
+  </testsuite>
+  <testsuite name="5. Job Requests &amp; Transactions / Income Summary – Client Forbidden (403)" id="ecf5f46e-8546-4742-a387-7e7dbe51391c" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 403" time="0.002" classname="5JobRequestsAmpTransactionsIncomeSummaryClientForbidden403"/>
+  </testsuite>
+  <testsuite name="6. Admin / List Users – Admin (200)" id="bea3ee7f-ce14-4720-b388-57a7a15d196e" timestamp="2026-10-12T16:39:45.162Z" tests="3" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 200" time="0.003" classname="6AdminListUsersAdmin200"/>
+    <testcase name="Users returned" time="0.003" classname="6AdminListUsersAdmin200"/>
+    <testcase name="No sensitive data leaked" time="0.003" classname="6AdminListUsersAdmin200"/>
+  </testsuite>
+  <testsuite name="6. Admin / List Users – Client Forbidden (403)" id="b3be875e-2c15-432c-9e52-be554d813ed6" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 403" time="0.002" classname="6AdminListUsersClientForbidden403"/>
+  </testsuite>
+  <testsuite name="6. Admin / All Transactions – Admin (200)" id="0f583f3a-3e7c-41ff-9759-1df2bd625043" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.004">
+    <testcase name="Status is 200" time="0.004" classname="6AdminAllTransactionsAdmin200"/>
+    <testcase name="Includes this run's request" time="0.004" classname="6AdminAllTransactionsAdmin200"/>
+  </testsuite>
+  <testsuite name="6. Admin / All Transactions – Freelancer Forbidden (403)" id="76cb5203-ba74-4143-90a8-1c8676ab95ad" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 403" time="0.002" classname="6AdminAllTransactionsFreelancerForbidden403"/>
+  </testsuite>
+  <testsuite name="6. Admin / Delete Any Gig – Admin (200)" id="6bc69e7d-d7e0-4053-b27b-9011875004fd" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.005">
+    <testcase name="Status is 200" time="0.005" classname="6AdminDeleteAnyGigAdmin200"/>
+  </testsuite>
+  <testsuite name="7. Gig Deletion (Ownership) / Delete Gig – Another Freelancer (403)" id="87f58e33-17a6-4dc7-9b0e-e7a2b43eb2db" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.004">
+    <testcase name="Status is 403" time="0.004" classname="7GigDeletionOwnershipDeleteGigAnotherFreelancer403"/>
+  </testsuite>
+  <testsuite name="7. Gig Deletion (Ownership) / Delete Gig – Client (403)" id="da1b3a7d-c4ce-49b8-8efd-9cfc38439b99" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.002">
+    <testcase name="Status is 403" time="0.002" classname="7GigDeletionOwnershipDeleteGigClient403"/>
+  </testsuite>
+  <testsuite name="7. Gig Deletion (Ownership) / Delete Gig – Owner (200)" id="075178b0-f8be-4160-b92d-efc013097946" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 200" time="0.003" classname="7GigDeletionOwnershipDeleteGigOwner200"/>
+  </testsuite>
+  <testsuite name="7. Gig Deletion (Ownership) / Get Deleted Gig (404)" id="50970c90-48e7-49a5-a5f3-391dfcb8ad27" timestamp="2026-10-12T16:39:45.162Z" tests="1" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 404" time="0.003" classname="7GigDeletionOwnershipGetDeletedGig404"/>
+  </testsuite>
+  <testsuite name="7. Gig Deletion (Ownership) / Request Record Kept After Gig Deletion (200)" id="c58baccf-dedd-4e5f-9f83-3ab9ae997746" timestamp="2026-10-12T16:39:45.162Z" tests="2" failures="0" errors="0" time="0.003">
+    <testcase name="Status is 200" time="0.003" classname="7GigDeletionOwnershipRequestRecordKeptAfterGigDeletion200"/>
+    <testcase name="Request history preserved" time="0.003" classname="7GigDeletionOwnershipRequestRecordKeptAfterGigDeletion200"/>
   </testsuite>
 </testsuites>

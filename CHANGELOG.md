@@ -2,15 +2,59 @@
 
 ## Now / Next / Known issues
 
-- **Now:** Job requests (client → freelancer, accept/decline) built and tested. Awaiting review.
+- **Now:** Postman screenshots captured for all 63 requests (`images/Postman Part2/`). Awaiting review.
 - **Next:**
-  - Update the Postman collection and Newman evidence for the request/respond flow.
-  - Update the README (features, endpoints, RBAC table).
-  - Add Part 2 screenshots and the demo video link.
+  - Update the README (job requests, validation rules, endpoints, RBAC table, screenshots, test counts, Docker and CI).
+  - Add code references (accessed 11 October 2026).
+  - Commit, once a git name and email are configured.
+  - Record the Part 2 demo video and add its link.
 - **Known issues:**
   - `docker-compose.yml` still targets the old JSON store and has no MongoDB service.
   - The frontend CSP is only sent by `npm run preview`, not `npm run dev`.
-  - The Postman collection and Newman results still describe instant booking.
+  - The git-native v3 collection under `postman/collections/` still only covers Part 1. The JSON collection is the complete one.
+
+## 2026-10-12 – Input hardening, category list, tooling fixes, Postman evidence
+
+- **Validation:** a shared rule set (`backend/src/middleware/fieldRules.js`) is used by every route.
+  - Text fields must really be text, so an array or object is rejected with 422 instead of crashing. An array password used to cause a 500.
+  - Control characters are rejected. Descriptions may still contain line breaks.
+  - Names allow only letters, spaces, apostrophes, hyphens and full stops. Titles use a character allow-list and must contain a letter.
+  - Money is a plain amount with at most two decimals. Emails are at most 254 characters.
+- **Category:** gigs choose from a fixed list of 10 categories, shown as a dropdown in the form and enforced by the API.
+- **Frontend:** the client-side checks mirror the API rules.
+- **Tests:** backend 103 (up from 75), frontend 34 (up from 30), Newman 63 requests and 126 assertions, all passing.
+- **Tooling fixes:**
+  - `npm run lint` in the backend now works: there's an ESLint 9 flat config, and `--ext` was removed from the script.
+  - `docker-compose.yml` now has a MongoDB service and `MONGO_URI`.
+  - `.dockerignore` excludes `.mongo-data/`, so the local database isn't copied into the image.
+  - CI now lints, tests and builds the frontend, and lints the backend.
+- **Evidence:**
+  - The Vitest text and JUnit outputs were regenerated.
+  - Ten app screenshots are in `images/app/`.
+  - 63 Postman request/response screenshots are in `images/Postman Part2/`, taken in Postman web with the Desktop Agent against the local API.
+
+## 2026-10-12 – Postman / Newman for job requests
+
+- Folder 5 of `hustlehub_api.postman_collection.json` is now "Job Requests & Transactions". It covers sending a request, validation failures (missing details, invalid amount, bad gig id), the 401/403/404 cases, and each party seeing only their own requests.
+- It also covers responding:
+  - Pending requests are not counted as income.
+  - The client, admin and other freelancers are refused (403).
+  - Invalid status and invalid id return 422.
+  - The owning freelancer can accept.
+  - A second response is refused (409).
+  - Income and tax are counted after acceptance.
+- Newman run against the live API: 60 requests, 119 assertions, 0 failures. Results are saved in `postman/newman-results/`, which I checked contains no passwords, secrets or tokens.
+
+## 2026-10-12 – UI restyle
+
+Visual-only restyle that borrows hipages' design language. No features were added or removed.
+
+- Navy ink text and a single teal accent (`#0f766e`, unchanged). White surfaces with hairline borders and no drop shadows.
+- A floating white header bar. Heavy headings. Compact bold buttons: a filled primary, and outlined secondary ones.
+- Removed the pills: role, category and status are now plain text labels (status is coloured text). Removed the "H" logo tile in favour of a wordmark.
+- Stats sit in one bordered panel with dividers. The request form uses a grey band and is capped at 720px. Table actions stay on one line.
+- System font stack, because the strict CSP blocks external font hosts.
+- Checked in Chrome on the login, register, browse gigs, request form, my gigs and requests & income pages. Frontend tests: 30/30 passing.
 
 ## 2026-10-12 – Job requests replace instant booking
 
