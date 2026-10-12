@@ -16,6 +16,22 @@ The code references (sections 1–2) also appear as comments directly above the 
 
 ---
 
+## 0. Part 1 references (carried over)
+
+These sources were cited in the Part 1 README and are still cited in the current one. Accessed: 4 September 2026.
+
+| Reference | Used for |
+|---|---|
+| Barth, A. (2011) *The Web Origin Concept*. RFC 6454. RFC Editor. https://www.rfc-editor.org/info/rfc6454 | CORS allow-list (`app.js`) |
+| Fielding, R.T. (2000) *Architectural Styles and the Design of Network-based Software Architectures*. PhD thesis. University of California, Irvine. https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm | REST API design |
+| Graham, M., Hjorth, I. and Lehdonvirta, V. (2017) Digital labour and development: Impacts of global digital labour platforms and the gig economy on worker livelihoods. *Transfer: European Review of Labour and Research*, 23(2), pp. 135–162. https://doi.org/10.1177/1024258916687250 | Project context (introduction) |
+| Hodges, J., Jackson, C. and Barth, A. (2012) *HTTP Strict Transport Security (HSTS)*. RFC 6797. RFC Editor. https://www.rfc-editor.org/info/rfc6797 | HSTS header (`app.js`) |
+| Jones, M., Bradley, J. and Sakimura, N. (2015) *JSON Web Token (JWT)*. RFC 7519. RFC Editor. https://www.rfc-editor.org/info/rfc7519 | JWT authentication (`middleware/auth.js`) |
+| National Institute of Standards and Technology (NIST) (2020) *Digital Identity Guidelines: Authentication and Lifecycle Management*. NIST Special Publication 800-63B. U.S. Department of Commerce. https://pages.nist.gov/800-63-3/sp800-63b.html | Password policy, bcrypt cost, token expiry |
+| OWASP Foundation (2021) *OWASP Top Ten Web Application Security Risks*. https://owasp.org/projects/top-ten | Overall threat model (Security Measures) |
+| Provos, N. and Mazières, D. (1999) A Future-Adaptable Password Scheme. In: *Proceedings of the 8th USENIX Security Symposium*. Washington, D.C., 23–26 August. Berkeley, CA: USENIX Association, pp. 81–88. https://www.usenix.org/legacy/events/usenix99/provos.html | bcrypt password hashing (`authController.js`) |
+| Rescorla, E. (2026) *The Transport Layer Security (TLS) Protocol Version 1.3*. RFC 9846. RFC Editor. https://www.rfc-editor.org/info/rfc9846 | HTTPS-only API (`server.js`) |
+
 ## 1. Code references
 
 | # | Reference | Used in |

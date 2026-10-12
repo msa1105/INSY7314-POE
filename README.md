@@ -4,6 +4,8 @@
 
 HustleHub+ is a secure, full-stack MERN marketplace. Freelancers list their services ("gigs"). Clients browse those gigs and send a freelancer a **job request** with the details of the work and the amount they are willing to pay. The freelancer accepts or declines it. Accepting counts as a simulated payment and is recorded as the freelancer's income.
 
+Platform-based gig work is growing quickly (Graham, Hjorth and Lehdonvirta, 2017), and these platforms handle credentials, payments and income records, so HustleHub+ treats the OWASP Top Ten risks as its baseline threat model (OWASP Foundation, 2021).
+
 Part 1 built the secure backend foundations. Part 2 extends them into a full-stack application:
 
 - **MongoDB** replaces the JSON file store (Mongoose models).
@@ -247,6 +249,8 @@ The frontend mirrors these rules, using `ProtectedRoute` and showing only the bu
 
 ## API Endpoints
 
+The API follows a RESTful style: resources are addressed by URL, the HTTP method states the action, and every request carries its own credentials (Fielding, 2000).
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | GET | `/api/health` | Public | Health check |
@@ -300,10 +304,10 @@ The update is conditional (`findOneAndUpdate` on `{ _id, status: 'pending' }`), 
 
 | Threat | Control | Where |
 |---|---|---|
-| Credential theft in transit (MITM) | HTTPS-only API (TLS, RSA 2048 / SHA-256) and HSTS (1 year). The frontend dev server and preview also run over HTTPS. | `server.js`, `app.js`, `vite.config.js` |
-| Password cracking after a breach | bcrypt with cost 12. `passwordHash` is `select: false` and stripped by `toJSON`. | `authController.js`, `models/User.js` |
+| Credential theft in transit (MITM) | HTTPS-only API (TLS, RSA 2048 / SHA-256) and HSTS (1 year) (Rescorla, 2026; Hodges, Jackson and Barth, 2012). The frontend dev server and preview also run over HTTPS. | `server.js`, `app.js`, `vite.config.js` |
+| Password cracking after a breach | bcrypt with cost 12 (Provos and Mazières, 1999; NIST, 2020). `passwordHash` is `select: false` and stripped by `toJSON`. | `authController.js`, `models/User.js` |
 | User enumeration | Same error for unknown email and wrong password, plus timing normalisation with a **real** bcrypt dummy hash (adnan kamili, 2016; Daniel Gartmann, 2016; OWASP Foundation, n.d.a) | `authController.js` |
-| Token forgery / misuse | JWT pinned to HS256 and checked for **issuer and audience**, 1-hour expiry, secret loaded from env (Auth0, n.d.) | `middleware/auth.js` |
+| Token forgery / misuse | JWT pinned to HS256 and checked for **issuer and audience**, 1-hour expiry, secret loaded from env (Jones, Bradley and Sakimura, 2015; Auth0, n.d.) | `middleware/auth.js` |
 | Privilege escalation | `authorise()` role checks, ownership checks in controllers (gig owner, request receiver), admin role cannot be self-registered | routes, controllers |
 | Insecure direct object reference (IDOR) | Queries filtered by `req.user.id`, and ownership compared before any update or delete | `gigController.js`, `transactionController.js` |
 | Mass assignment | Controllers copy only whitelisted fields, so `freelancer`, `role` and `status` cannot be set by the client. A client's offer (`amount`) is validated, never trusted blindly. | controllers |
@@ -314,7 +318,7 @@ The update is conditional (`findOneAndUpdate` on `{ _id, status: 'pending' }`), 
 | Job-request spam | Request limiter: 10 requests per 15 minutes per IP | `middleware/rateLimiter.js` |
 | General abuse / DoS | 100 requests per 15 minutes on `/api/*`, 10KB body limit, 128-character password cap (prevents bcrypt DoS) | `app.js`, `authRoutes.js` |
 | Clickjacking, MIME sniffing | Helmet: `frame-ancestors 'none'`, `X-Frame-Options`, `nosniff` (Helmet.js, n.d.). The frontend sends the same headers. | `app.js`, `vite.config.js` |
-| Cross-origin abuse | CORS allow-list (`CORS_ORIGIN`). Unknown origins get **403**. | `app.js` |
+| Cross-origin abuse | CORS allow-list (`CORS_ORIGIN`) based on the web origin concept (Barth, 2011). Unknown origins get **403**. | `app.js` |
 | Information disclosure | Global error handler: no stack traces or internals. The frontend shows a generic message on 5xx errors. No source maps in the build. | `errorHandler.js`, `api/client.js`, `vite.config.js` |
 
 ### Validation & sanitisation
@@ -373,7 +377,7 @@ The built app contains no inline scripts or styles, so the CSP doesn't need `'un
 
 ### Password hashing & timing-attack defence
 
-bcrypt (cost 12) is slow by design. It salts every hash, defeating rainbow tables, and resists GPU cracking. If a login used an unknown email and the server skipped bcrypt, that request would return faster than one with a known email, revealing which emails are registered. HustleHub+ therefore always runs `bcrypt.compare`, using a dummy hash when no user is found (adnan kamili, 2016).
+bcrypt (cost 12) is slow by design. It salts every hash, defeating rainbow tables, and its adjustable work factor resists GPU cracking (Provos and Mazières, 1999). A cost of 12 and a minimum 8-character password follow current guidance (NIST, 2020). If a login used an unknown email and the server skipped bcrypt, that request would return faster than one with a known email, revealing which emails are registered. HustleHub+ therefore always runs `bcrypt.compare`, using a dummy hash when no user is found (adnan kamili, 2016).
 
 > **Part 2 fix:** Part 1's dummy hash was not a valid 60-character bcrypt string, so bcrypt rejected it instantly (~1ms versus ~390ms) and the defence did not work. It is now a real hash generated at startup with the same cost factor:
 > ```javascript
@@ -382,7 +386,7 @@ bcrypt (cost 12) is slow by design. It salts every hash, defeating rainbow table
 
 ### JWT
 
-The token payload contains only `id`, `email`, `role`, `iat`, `exp`, `iss` and `aud`. Verification checks all of them (Auth0, n.d.):
+The token payload contains only `id`, `email`, `role`, `iat`, `exp`, `iss` and `aud`. The token follows RFC 7519 (Jones, Bradley and Sakimura, 2015). Verification checks all of them (Auth0, n.d.):
 
 ```javascript
 jwt.verify(token, process.env.JWT_SECRET, {
@@ -600,7 +604,7 @@ Part 1 (Secure Backend Foundations) Postman screenshots are kept in [`images/Pos
 
 ## References
 
-References are cited in the text above in Harvard style (Author, Year), and also appear as comments next to the code they informed. The complete list, including image credits, design inspiration and every library and tool with its licence, is in [`ATTRIBUTIONS.md`](ATTRIBUTIONS.md).
+References are cited in the text above in Harvard style (Author, Year), and also appear as comments next to the code they informed. Sources carried over from Part 1 keep their original access date (4 September 2026). The complete list, including image credits, design inspiration and every library and tool with its licence, is in [`ATTRIBUTIONS.md`](ATTRIBUTIONS.md).
 
 | Source | Used in |
 |---|---|
@@ -634,3 +638,12 @@ References are cited in the text above in Harvard style (Author, Year), and also
 | Good Faces (2021) *Woman in gray sweater sitting on chair using macbook* [Photograph]. Unsplash. https://unsplash.com/photos/woman-in-gray-sweater-sitting-on-chair-using-macbook-gy5SlRW9OGA (Accessed: 11 October 2026) | Log in page (`public/images/auth-login.jpg`) |
 | Daniel Thomas (2020) *Person using black and silver laptop computer* [Photograph]. Unsplash. https://unsplash.com/photos/person-using-black-and-silver-laptop-computer-6_NXEMZbUq0 (Accessed: 11 October 2026) | Register page (`public/images/auth-register.jpg`) |
 | Mermaid (n.d.) *About Mermaid*. Mermaid Documentation. https://mermaid.js.org/intro/ (Accessed: 11 October 2026) | Architecture, job request and data model diagrams (README) |
+| Barth, A. (2011) *The Web Origin Concept*. RFC 6454. RFC Editor. https://www.rfc-editor.org/info/rfc6454 (Accessed: 4 September 2026) | CORS allow-list (`app.js`) |
+| Fielding, R.T. (2000) *Architectural Styles and the Design of Network-based Software Architectures*. PhD thesis. University of California, Irvine. https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm (Accessed: 4 September 2026) | REST API design |
+| Graham, M., Hjorth, I. and Lehdonvirta, V. (2017) Digital labour and development: Impacts of global digital labour platforms and the gig economy on worker livelihoods. *Transfer: European Review of Labour and Research*, 23(2), pp. 135–162. https://doi.org/10.1177/1024258916687250 (Accessed: 4 September 2026) | Project context (introduction) |
+| Hodges, J., Jackson, C. and Barth, A. (2012) *HTTP Strict Transport Security (HSTS)*. RFC 6797. RFC Editor. https://www.rfc-editor.org/info/rfc6797 (Accessed: 4 September 2026) | HSTS header (`app.js`) |
+| Jones, M., Bradley, J. and Sakimura, N. (2015) *JSON Web Token (JWT)*. RFC 7519. RFC Editor. https://www.rfc-editor.org/info/rfc7519 (Accessed: 4 September 2026) | JWT authentication (`middleware/auth.js`) |
+| National Institute of Standards and Technology (NIST) (2020) *Digital Identity Guidelines: Authentication and Lifecycle Management*. NIST Special Publication 800-63B. U.S. Department of Commerce. https://pages.nist.gov/800-63-3/sp800-63b.html (Accessed: 4 September 2026) | Password policy, bcrypt cost, token expiry |
+| OWASP Foundation (2021) *OWASP Top Ten Web Application Security Risks*. https://owasp.org/projects/top-ten (Accessed: 4 September 2026) | Overall threat model (Security Measures) |
+| Provos, N. and Mazières, D. (1999) A Future-Adaptable Password Scheme. In: *Proceedings of the 8th USENIX Security Symposium*. Washington, D.C., 23–26 August. Berkeley, CA: USENIX Association, pp. 81–88. https://www.usenix.org/legacy/events/usenix99/provos.html (Accessed: 4 September 2026) | bcrypt password hashing (`authController.js`) |
+| Rescorla, E. (2026) *The Transport Layer Security (TLS) Protocol Version 1.3*. RFC 9846. RFC Editor. https://www.rfc-editor.org/info/rfc9846 (Accessed: 4 September 2026) | HTTPS-only API (`server.js`) |
