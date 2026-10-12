@@ -19,6 +19,12 @@ const jwt    = require('jsonwebtoken');
 const logger = require('../utils/logger');
 const { JWT: JWT_CFG } = require('../config/constants');
 
+/* Auth0, n.d.
+ * node-jsonwebtoken: JsonWebToken implementation for node.js
+ * GitHub
+ * https://github.com/auth0/node-jsonwebtoken
+ * Accessed: 11 October 2026
+ */
 /**
  * authenticate – Middleware that validates a JWT Bearer token.
  * Attaches decoded payload to req.user on success.

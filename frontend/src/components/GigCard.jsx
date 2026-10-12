@@ -4,7 +4,7 @@ import { decodeEntities, formatRand } from '../utils/format'
  * A single gig listing. The action buttons shown depend on the props the
  * page passes in, which in turn depend on the user's role.
  */
-export default function GigCard({ gig, onBook, booking, onEdit, onDelete }) {
+export default function GigCard({ gig, onRequest, onEdit, onDelete }) {
   const freelancerName = typeof gig.freelancer === 'object' ? gig.freelancer?.name : null
 
   return (
@@ -17,11 +17,11 @@ export default function GigCard({ gig, onBook, booking, onEdit, onDelete }) {
       <p className="gig-card__desc">{decodeEntities(gig.description)}</p>
       {freelancerName && <p className="gig-card__by">by {decodeEntities(freelancerName)}</p>}
 
-      {(onBook || onEdit || onDelete) && (
+      {(onRequest || onEdit || onDelete) && (
         <div className="gig-card__actions">
-          {onBook && (
-            <button type="button" className="btn btn--primary" onClick={() => onBook(gig)} disabled={booking}>
-              {booking ? 'Booking…' : 'Book now'}
+          {onRequest && (
+            <button type="button" className="btn btn--primary" onClick={() => onRequest(gig)}>
+              Request job
             </button>
           )}
           {onEdit && (

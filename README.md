@@ -2,15 +2,15 @@
 
 > **INSY7314 POE – Part 2: Secure Stack**
 
-HustleHub+ is a secure, full-stack MERN marketplace. Freelancers list their services ("gigs"). Clients browse those gigs and book them with a simulated payment. Every booking creates a transaction record that tracks the freelancer's income.
+HustleHub+ is a secure, full-stack MERN marketplace. Freelancers list their services ("gigs"). Clients browse those gigs and send a freelancer a **job request** with the details of the work and the amount they are willing to pay. The freelancer accepts or declines it. Accepting counts as a simulated payment and is recorded as the freelancer's income.
 
 Part 1 built the secure backend foundations. Part 2 extends them into a full-stack application:
 
 - **MongoDB** replaces the JSON file store (Mongoose models).
-- A **React frontend** handles registration, login, browsing, gig management, booking and booking history.
+- A **React frontend** handles registration, login, browsing, gig management, job requests and request history.
 - **Gig management** is complete, with ownership enforcement (create, view, update, delete).
-- **Bookings and transactions** are linked to both the client and the freelancer, and income is tracked.
-- **Security** is applied end to end. It includes RBAC, input validation and sanitisation, NoSQL-injection protection, rate limiting on auth and booking, and Helmet with a strict CSP on the API and the frontend.
+- **Job requests** link the client, the freelancer and the gig. Only the freelancer who received a request can accept or decline it, and only once. Only accepted requests count as income.
+- **Security** is applied end to end. It includes RBAC with ownership checks, strict input validation (type checks, character allow-lists, a fixed category list) and sanitisation, NoSQL-injection protection, rate limiting on auth and job requests, and Helmet with a strict CSP on the API and the frontend.
 - **Testing** covers the backend (Jest), the frontend (Vitest and React Testing Library) and the API (Postman, executed with Newman).
 
 ---
@@ -26,10 +26,12 @@ Part 1 built the secure backend foundations. Part 2 extends them into a full-sta
 7. [Getting Started](#getting-started)
 8. [Running the Backend](#running-the-backend)
 9. [Running the Frontend](#running-the-frontend)
-10. [Testing Procedures](#testing-procedures)
-11. [Application Screenshots](#application-screenshots)
-12. [Demonstration Video](#demonstration-video)
-13. [Part 1 Evidence](#part-1-evidence)
+10. [Running with Docker](#running-with-docker)
+11. [Testing Procedures](#testing-procedures)
+12. [Application Screenshots](#application-screenshots)
+13. [Demonstration Video](#demonstration-video)
+14. [Part 1 Evidence](#part-1-evidence)
+15. [References](#references)
 
 ---
 
@@ -42,15 +44,15 @@ Part 1 built the secure backend foundations. Part 2 extends them into a full-sta
 
 ### Clients
 - **Browse** every gig listed on the marketplace.
-- **Book a gig.** A confirmation step shows the gig and its price, and payment is simulated with no real money involved. Each booking creates a `completed` transaction.
-- **My bookings** lists every booking the client has made, with the freelancer, the amount and the date.
+- **Request a job.** The client describes the work and enters the amount they are willing to pay (pre-filled with the gig's asking price). The request is sent to the freelancer as `pending`. No money moves until the freelancer accepts, and payment is simulated.
+- **My requests** lists every request the client has sent, with the freelancer, the work details, the offer and its status (`pending`, `accepted` or `declined`).
 
 ### Freelancers
-- **My gigs** lets a freelancer create, edit and delete their own listings. They cannot edit or delete anyone else's.
-- **Bookings & income** lists bookings clients made for the freelancer's gigs. It also shows total income, the number of bookings and an estimated tax figure (flat 25% placeholder).
+- **My gigs** lets a freelancer create, edit and delete their own listings, choosing the category from a fixed list. They cannot edit or delete anyone else's.
+- **Requests & income** lists the job requests clients have sent for the freelancer's gigs. Pending requests have **Accept** and **Decline** buttons. Accepting counts as the simulated payment. The page shows total income, the number of accepted jobs and an estimated tax figure (flat 25% placeholder).
 
 ### Admins
-- **Admin dashboard** lists all users and all platform transactions, with total booking volume.
+- **Admin dashboard** lists all users and all platform transactions, with the paid volume (accepted requests only).
 - **Moderation:** an admin can remove any gig from the marketplace.
 
 ---
@@ -113,9 +115,11 @@ INSY7314/
 │   │   ├── config/                  # constants.js (roles, JWT, password policy), db.js (Mongoose)
 │   │   ├── models/                  # User, Gig, Transaction (+ safe toJSON transform)
 │   │   ├── controllers/             # auth, user, gig, transaction
-│   │   ├── middleware/              # auth (JWT + RBAC), validate, sanitize, rateLimiter, errorHandler
+│   │   ├── middleware/              # auth (JWT + RBAC), fieldRules (shared input rules), validate,
+│   │   │                            # sanitize, rateLimiter, errorHandler
 │   │   ├── routes/                  # Route definitions + validation chains
 │   │   └── utils/logger.js          # Console + file logger (no secrets logged)
+│   ├── eslint.config.js             # ESLint 9 flat config (npm run lint)
 │   └── tests/                       # Jest + Supertest (in-memory MongoDB)
 │
 ├── frontend/                        # React SPA (Vite)
@@ -129,11 +133,16 @@ INSY7314/
 │   │   └── test/                    # Vitest + React Testing Library tests
 │   └── test-results/                # Frontend test evidence
 │
-├── hustlehub_api.postman_collection.json   # Postman collection (50 requests)
+├── hustlehub_api.postman_collection.json   # Postman collection (63 requests)
 ├── postman/
 │   ├── hustlehub-local.postman_environment.json
 │   └── newman-results/              # Newman execution evidence
-└── images/                          # Screenshots
+├── images/
+│   ├── app/                         # Screenshots of the running application
+│   ├── Postman Part1/               # Part 1 Postman evidence
+│   └── Postman Part2/               # Part 2: one screenshot per request (63)
+├── docker-compose.yml               # API + MongoDB containers
+└── CHANGELOG.md                     # Part 2 change log
 ```
 
 ---
@@ -144,7 +153,7 @@ Access control is enforced on the server at three levels:
 
 1. **Authentication.** The `authenticate` middleware verifies the JWT's signature, expiry, algorithm, issuer and audience. If any check fails, the request gets **401**.
 2. **Authorisation.** `authorise(...roles)` checks the user's role against the roles allowed for the endpoint. A mismatch gets **403**.
-3. **Ownership.** Controllers compare the resource's owner with the token's user id. For example, `gig.freelancer` must equal `req.user.id`, otherwise the request gets **403**. Every booking and income query is filtered by the logged-in user's id, so users only ever see their own records.
+3. **Ownership.** Controllers compare the resource's owner with the token's user id. For example, `gig.freelancer` must equal `req.user.id`, otherwise the request gets **403**. Every request and income query is filtered by the logged-in user's id, so users only ever see their own records. Only the freelancer a job request was sent to may accept or decline it (`transaction.freelancer` must equal `req.user.id`).
 
 | Capability | Client | Freelancer | Admin |
 |---|:---:|:---:|:---:|
@@ -152,8 +161,9 @@ Access control is enforced on the server at three levels:
 | Create gig | ❌ | ✅ | ❌ |
 | Update gig | ❌ | ✅ own only | ❌ |
 | Delete gig | ❌ | ✅ own only | ✅ any |
-| Book gig (create transaction) | ✅ | ❌ | ❌ |
-| View own bookings | ✅ made | ✅ received | ❌ |
+| Send job request (details + offer) | ✅ | ❌ | ❌ |
+| Accept / decline a job request | ❌ | ✅ own only | ❌ |
+| View own requests | ✅ sent | ✅ received | ❌ |
 | View income & estimated tax | ❌ | ✅ own only | ❌ |
 | List all users | ❌ | ❌ | ✅ |
 | List all transactions | ❌ | ❌ | ✅ |
@@ -177,30 +187,37 @@ The frontend mirrors these rules, using `ProtectedRoute` and showing only the bu
 | POST | `/api/gigs` | Freelancer | Create gig |
 | PUT | `/api/gigs/:id` | Freelancer (owner) | Update gig (partial) |
 | DELETE | `/api/gigs/:id` | Freelancer (owner) or Admin | Delete gig |
-| POST | `/api/transactions` | Client (rate limited) | Book a gig (simulated payment) → transaction |
-| GET | `/api/transactions/mine` | Client / Freelancer | Bookings made (client) or received (freelancer) |
-| GET | `/api/transactions/income` | Freelancer | Income summary + estimated tax |
+| POST | `/api/transactions` | Client (rate limited) | Send a job request (`pending`) |
+| PATCH | `/api/transactions/:id` | Freelancer (receiver only) | Accept (simulated payment) or decline a pending request |
+| GET | `/api/transactions/mine` | Client / Freelancer | Requests sent (client) or received (freelancer) |
+| GET | `/api/transactions/income` | Freelancer | Income from accepted requests + estimated tax |
 | GET | `/api/transactions` | Admin | All transactions |
 
-**Book a gig:** `POST /api/transactions` with body `{ "gigId": "<id>" }`
+**Send a job request:** `POST /api/transactions` (client)
+
+```json
+{ "gigId": "6acd121a18de1397e2432b42", "details": "Logo for a new coffee cart in Durban. Bold, friendly, must work as a small sticker.", "amount": 1500 }
+```
+
+The request is stored as `pending` with the client's offer. The freelancer and the gig title always come from the stored gig, so a client cannot redirect a request to someone else or set its status.
+
+**Accept or decline:** `PATCH /api/transactions/:id` with body `{ "status": "accepted" }` or `{ "status": "declined" }` (only the freelancer who received the request)
 
 ```json
 {
-  "message": "Booking confirmed. Payment simulated successfully.",
+  "message": "Request accepted. Payment simulated successfully.",
   "transaction": {
-    "id": "6acbec8bc1a6ce68606f3ca1",
-    "gig": "6acbec8ac1a6ce68606f3c9b",
-    "client": "6acbec89c1a6ce68606f3c93",
-    "freelancer": "6acbec88c1a6ce68606f3c8d",
+    "id": "6acd12b618de1397e2432b4f",
     "gigTitle": "Premium Logo Design",
-    "amount": 1800,
-    "status": "completed",
-    "createdAt": "2026-10-11T20:08:03.211Z"
+    "details": "Logo for a new coffee cart in Durban. Bold, friendly, must work as a small sticker.",
+    "amount": 1500,
+    "status": "accepted",
+    "respondedAt": "2026-10-12T17:05:13.415Z"
   }
 }
 ```
 
-The `amount` is always taken from the stored gig, never from the request body, so a client cannot choose their own price. The gig title and amount are also copied onto the transaction, so the record stays accurate if the gig is later edited or deleted.
+The update is conditional (`findOneAndUpdate` on `{ _id, status: 'pending' }`), so a request can only ever be answered once, even if two responses arrive together. A second attempt returns **409**. The gig title is copied onto the request, so the record stays accurate if the gig is later edited or deleted.
 
 ---
 
@@ -214,13 +231,14 @@ The `amount` is always taken from the stored gig, never from the request body, s
 | Password cracking after a breach | bcrypt with cost 12. `passwordHash` is `select: false` and stripped by `toJSON`. | `authController.js`, `models/User.js` |
 | User enumeration | Same error for unknown email and wrong password, plus timing normalisation with a **real** bcrypt dummy hash | `authController.js` |
 | Token forgery / misuse | JWT pinned to HS256 and checked for **issuer and audience**, 1-hour expiry, secret loaded from env | `middleware/auth.js` |
-| Privilege escalation | `authorise()` role checks, ownership checks in controllers, admin role cannot be self-registered | routes, controllers |
+| Privilege escalation | `authorise()` role checks, ownership checks in controllers (gig owner, request receiver), admin role cannot be self-registered | routes, controllers |
 | Insecure direct object reference (IDOR) | Queries filtered by `req.user.id`, and ownership compared before any update or delete | `gigController.js`, `transactionController.js` |
-| Mass assignment | Controllers copy only whitelisted fields, so `freelancer`, `role`, `amount` and `status` cannot be set by the client | controllers |
+| Mass assignment | Controllers copy only whitelisted fields, so `freelancer`, `role` and `status` cannot be set by the client. A client's offer (`amount`) is validated, never trusted blindly. | controllers |
 | NoSQL injection | Sanitiser strips `$` and `.` keys from body, query and params. `strictQuery` is on. Ids are validated with `isMongoId()`. | `middleware/sanitize.js`, `config/db.js` |
-| Stored XSS | `express-validator` `.escape()` on all text input. React renders text, never HTML (no `dangerouslySetInnerHTML`). Strict CSP. | routes, frontend |
+| Stored XSS | Names and gig titles use a character allow-list (no `<` or `>`). Free text is `.escape()`d. React renders text, never HTML (no `dangerouslySetInnerHTML`). Strict CSP. | `fieldRules.js`, routes, frontend |
+| Malformed / unexpected input | Type checks (arrays or objects where text is expected are rejected), control characters rejected, money limited to 2 decimal places, fixed category list, email capped at 254 characters | `middleware/fieldRules.js` |
 | Brute force / credential stuffing | Auth limiter: 20 requests per 15 minutes per IP | `middleware/rateLimiter.js` |
-| Booking spam / transaction flooding | Booking limiter: 10 requests per 15 minutes per IP | `middleware/rateLimiter.js` |
+| Job-request spam | Request limiter: 10 requests per 15 minutes per IP | `middleware/rateLimiter.js` |
 | General abuse / DoS | 100 requests per 15 minutes on `/api/*`, 10KB body limit, 128-character password cap (prevents bcrypt DoS) | `app.js`, `authRoutes.js` |
 | Clickjacking, MIME sniffing | Helmet: `frame-ancestors 'none'`, `X-Frame-Options`, `nosniff`. The frontend sends the same headers. | `app.js`, `vite.config.js` |
 | Cross-origin abuse | CORS allow-list (`CORS_ORIGIN`). Unknown origins get **403**. | `app.js` |
@@ -228,17 +246,19 @@ The `amount` is always taken from the stored gig, never from the request body, s
 
 ### Validation & sanitisation
 
-All input is validated with `express-validator` chains in the route files **before** it reaches a controller. Invalid input returns **422** with a `fields` array, which the frontend displays next to the matching form fields:
+All input is validated with `express-validator` chains **before** it reaches a controller. The rules are shared from one module, `backend/src/middleware/fieldRules.js`, so the same field is checked the same way on every route. Invalid input returns **422** with a `fields` array, which the frontend displays next to the matching form fields:
 
 | Endpoint | Rules |
 |---|---|
-| Register | name 2–80 characters (escaped). Valid email (normalised). Password 8–128 characters with upper, lower, number and special characters. Role must be `client` or `freelancer`. |
-| Login | Valid email. Password required, maximum 128 characters. |
-| Create / update gig | Title 5–100 characters, description 10–2000, category up to 50 (all trimmed and escaped). Price 1–1,000,000. On update every field is optional, but any field sent is validated. |
-| Book | `gigId` must be a valid MongoDB ObjectId |
+| Register | Name 2–80 characters, letters, spaces, apostrophes, hyphens and full stops only (e.g. `Zoë O'Brien-Nkosi`). Valid email, at most 254 characters (normalised). Password 8–128 characters with upper, lower, number and special characters. Role must be `client` or `freelancer`. |
+| Login | Valid email. Password required (must be text), maximum 128 characters. |
+| Create / update gig | Title 5–100 characters from a character allow-list and must contain a letter. Description 10–2000 characters (line breaks allowed, escaped). Price 1–1,000,000 with at most 2 decimal places. Category must be one of the fixed list (Design, Writing, Development, Marketing, Finance, Admin Support, Video & Animation, Photography, Tutoring, Other). On update every field is optional, but any field sent is validated. |
+| Send job request | `gigId` a valid ObjectId. Work details 10–2000 characters (escaped). Offer 1–1,000,000 with at most 2 decimal places. |
+| Accept / decline | `:id` a valid ObjectId. `status` must be exactly `accepted` or `declined`. |
+| Every text field | Must be a string (arrays and objects are rejected). Control characters are rejected; only multi-line fields may contain line breaks. |
 | `:id` params | `isMongoId()` |
 
-The frontend runs the same checks (`src/utils/validation.js`) for instant feedback, but the server never relies on them.
+The frontend runs the same checks (`src/utils/validation.js`) for instant feedback, and the gig category is a dropdown, but the server never relies on any of it.
 
 Text is stored HTML-escaped (for example, `<script>` is stored as `&lt;script&gt;`). The frontend decodes these entities for display (`decodeEntities`). This is safe because React inserts strings as text nodes: a payload is shown literally and never executed. The tests cover this case.
 
@@ -248,7 +268,7 @@ Text is stored HTML-escaped (for example, `<script>` is stored as `&lt;script&gt
 |---|---|---|---|
 | General | `/api/*` | 100 requests per 15 minutes per IP (configurable via `RATE_LIMIT_*`) | `429 { "error": "Too many requests from this IP. Please try again later.", "retryAfterSeconds": 900 }` |
 | Auth | `/api/auth/*` | 20 requests per 15 minutes per IP | `429 { "error": "Too many authentication attempts. Please try again in 15 minutes.", ... }` |
-| Booking | `POST /api/transactions` | 10 requests per 15 minutes per IP | `429 { "error": "Too many booking attempts. Please try again in 15 minutes.", ... }` |
+| Job request | `POST /api/transactions` | 10 requests per 15 minutes per IP | `429 { "error": "Too many booking attempts. Please try again in 15 minutes.", ... }` |
 
 All limiters also send the standard `RateLimit-*` and `Retry-After` headers. The frontend displays the 429 message to the user.
 
@@ -385,9 +405,20 @@ Open **https://localhost:3000** and accept the self-signed certificate warning o
 
 **Try the full flow:**
 1. Register as a **freelancer**, then create a gig under **My gigs**.
-2. Log out, register as a **client**, then **Browse gigs**, choose **Book now** and **Confirm & pay**.
-3. Check **My bookings** as the client, then log back in as the freelancer and open **Bookings & income**.
+2. Log out, register as a **client**, then **Browse gigs**, choose **Request job**, describe the work, set your offer and **Send request**.
+3. Check **My requests** as the client (status `pending`). Log back in as the freelancer, open **Requests & income** and **Accept** (or **Decline**) the request. Income and estimated tax update straight away.
 4. Log in as the **admin** (from `create-admin`) to see all users and transactions.
+
+---
+
+## Running with Docker
+
+```bash
+cd backend && node generate-certs.js && cd ..
+JWT_SECRET=<64+ random chars> docker compose up --build
+```
+
+`docker-compose.yml` starts MongoDB (not exposed to the host) and the API on **https://localhost:5000**. The API waits until MongoDB is healthy. The image runs as a non-root user, and certificates are mounted read-only, never baked into the image.
 
 ---
 
@@ -395,9 +426,12 @@ Open **https://localhost:3000** and accept the self-signed certificate warning o
 
 | Suite | Tool | Command | Result |
 |---|---|---|---|
-| Backend unit/integration | Jest + Supertest + in-memory MongoDB | `cd backend && npm test` | **61 passing** (4 suites) |
-| Frontend components | Vitest + React Testing Library + user-event | `cd frontend && npm test` | **26 passing** (6 files) |
-| API (end-to-end) | Postman collection + Newman | `cd backend && npm run test:api` | **50 requests, 102 assertions, 0 failures** |
+| Backend unit/integration | Jest + Supertest + in-memory MongoDB | `cd backend && npm test` | **103 passing** (4 suites) |
+| Frontend components | Vitest + React Testing Library + user-event | `cd frontend && npm test` | **34 passing** (7 files) |
+| API (end-to-end) | Postman collection + Newman | `cd backend && npm run test:api` | **63 requests, 126 assertions, 0 failures** |
+| Lint | ESLint (backend), oxlint (frontend) | `npm run lint` in each app | no errors |
+
+**Continuous integration** (`.github/workflows/ci.yml`) runs on every push and pull request. It lints and tests the backend, lints, tests and builds the frontend, runs `npm audit` (fails on high or critical) and builds the Docker image.
 
 ### Backend tests (`backend/tests/`)
 
@@ -406,9 +440,9 @@ Each test file starts its own in-memory MongoDB (`mongodb-memory-server`, downlo
 | File | What it covers |
 |---|---|
 | `auth.test.js` | Registration and login, success and failure cases, password policy, protected profile route, malformed tokens |
-| `gigs.test.js` | Gig CRUD. Another freelancer **cannot** edit or delete a gig (403). Clients cannot manage gigs. Admin delete. Update validation. Ownership can't be reassigned. XSS escaping. |
-| `transactions.test.js` | Booking creates a transaction linked to both users. Clients can't override the price. Clients and freelancers only see their own bookings. Income only counts for the gig owner. Admin views, plus 401, 403, 404 and 422 cases. |
-| `security.test.js` | NoSQL injection, JWT audience, signature and expiry checks, admin-only routes, admin role can't be self-registered, 128-character password cap, **429 responses from the booking and auth limiters**, Helmet/CSP headers, CORS rejection |
+| `gigs.test.js` | Gig CRUD. Another freelancer **cannot** edit or delete a gig (403). Clients cannot manage gigs. Admin delete. Update validation. Ownership can't be reassigned. HTML in a title is rejected; HTML in a description is escaped. **Input hardening:** arrays, control characters, symbol-only titles, 3-decimal or exponent prices and categories outside the list are all rejected with 422. |
+| `transactions.test.js` | A job request is created as `pending` with the client's details and offer. The client can't redirect it to another freelancer or set its status. Only the receiving freelancer can accept or decline it, and only once (409 on a second answer). Only accepted requests count as income. Clients and freelancers only see their own requests. Admin views, plus 401, 403, 404 and 422 cases. |
+| `security.test.js` | NoSQL injection, JWT audience, signature and expiry checks, admin-only routes, admin role can't be self-registered, 128-character password cap, **429 responses from the request and auth limiters**, Helmet/CSP headers, CORS rejection, and input hardening for accounts and requests (wrong types never cause a 500). |
 
 ### Frontend tests (`frontend/src/test/`)
 
@@ -416,26 +450,27 @@ Each test file starts its own in-memory MongoDB (`mongodb-memory-server`, downlo
 |---|---|
 | `LoginPage.test.jsx` | Renders the form. Inline validation stops empty submits. A successful login calls the API and redirects. A 401 shows a generic message and clears the password. **A 500 never shows raw server details.** |
 | `RegisterPage.test.jsx` | Weak passwords and mismatched passwords are caught before any API call. A freelancer registration sends the right role and redirects. A duplicate-email error is shown. |
-| `GigsPage.test.jsx` | Clients see Book buttons and freelancers don't. Full booking flow through the confirmation dialog. Cancelling doesn't book. A 429 is shown to the user. **XSS payloads render as text, never as markup.** |
-| `GigForm.test.jsx` | Field validation, trimmed numeric submission, edit mode pre-filled with decoded text, server field errors |
+| `GigsPage.test.jsx` | Clients see Request job buttons and freelancers don't. A client sends a request with work details and their own offer. Invalid details or offers are caught inline and nothing is sent. Cancelling sends nothing. A 429 is shown to the user. **XSS payloads render as text, never as markup.** |
+| `BookingsPage.test.jsx` | A freelancer accepts a pending request, and the list and income reload. An already-answered request shows the API's 409 message. Clients see status but get no accept or decline buttons. |
+| `GigForm.test.jsx` | Field validation, trimmed numeric submission, the category is a fixed dropdown (free text can't be entered), edit mode pre-filled with decoded text, server field errors |
 | `ProtectedRoute.test.jsx` | Logged-out users go to /login. Wrong roles go to /gigs. Expired tokens count as logged out. |
-| `utils.test.js` | Password policy matches the API. Role allow-list. Price range. Entity decoding. Currency formatting. |
+| `utils.test.js` | Password policy matches the API. Role allow-list. Price range and 2-decimal rule. Name, title and category allow-lists. Control characters. Request details and offer. Entity decoding. Currency formatting. |
 
 **Evidence:** `npm run test:report` writes [`frontend/test-results/vitest-output.txt`](frontend/test-results/vitest-output.txt) and [`frontend/test-results/junit.xml`](frontend/test-results/junit.xml).
 
 ### Postman collection & Newman
 
-[`hustlehub_api.postman_collection.json`](hustlehub_api.postman_collection.json) contains **50 requests in 7 folders**. Each request has test scripts that check status codes, response shape and security properties: no `passwordHash` or stack traces leaked, escaped HTML, correct ownership.
+[`hustlehub_api.postman_collection.json`](hustlehub_api.postman_collection.json) contains **63 requests in 7 folders**. Each request has test scripts that check status codes, response shape and security properties: no `passwordHash` or stack traces leaked, escaped HTML, correct ownership.
 
 | Folder | Success cases | Failure cases |
 |---|---|---|
 | 1. Health & Security Headers | Health 200 | CSP, HSTS, nosniff and X-Powered-By assertions |
-| 2. Authentication | Register freelancer ×2 and client, login client and admin | Duplicate 409, weak password 422, bad email 422, admin role 422, NoSQL injection, wrong password 401, unknown email 401 |
+| 2. Authentication | Register freelancer ×2 and client, login client and admin | Duplicate 409, weak password 422, bad email 422, invalid name characters 422, admin role 422, NoSQL injection 422, wrong password 401, unknown email 401 |
 | 3. Protected Routes | Profile with token | No token 401, tampered token 401 |
-| 4. Gigs | Create, list, get, my gigs, update by owner | Client create 403, invalid input 422, XSS escaped, no token 401, invalid id 422, client my-gigs 403, other freelancer update 403, invalid update 422 |
-| 5. Bookings & Transactions | Book (amount from gig), client/freelancer my bookings, income summary | Freelancer book 403, no token 401, missing gig 404, invalid id 422, other freelancer sees none, client income 403 |
+| 4. Gigs | Create, list, get, my gigs, update by owner | Client create 403, invalid input 422, XSS in description escaped, HTML in title 422, category not in list 422, no token 401, invalid id 422, client my-gigs 403, other freelancer update 403, invalid update 422 |
+| 5. Job Requests & Transactions | Send request (pending, client's offer), client/freelancer my requests, owner accepts (simulated payment), income after acceptance | Missing details 422, invalid amount 422, freelancer send 403, no token 401, missing gig 404, invalid gig id 422, other freelancer sees none, pending not counted as income, client/admin/other freelancer respond 403, invalid status 422, invalid id 422, second answer 409, client income 403 |
 | 6. Admin | List users, all transactions, delete any gig | Client users 403, freelancer transactions 403 |
-| 7. Gig Deletion | Owner delete, booking history kept | Other freelancer 403, client 403, deleted gig 404 |
+| 7. Gig Deletion | Owner delete, accepted request kept after the gig is deleted | Other freelancer 403, client 403, deleted gig 404 |
 
 **Run with Newman** (API running, admin created):
 
@@ -444,7 +479,7 @@ cd backend
 npm run test:api
 ```
 
-The runner (`scripts/run-newman.js`) passes the admin password from `.env` with `--env-var`, so it never appears in the committed environment file. Each run registers new users with a timestamp, so the collection can be re-run against the same database. A full run makes 12 requests to the auth endpoints, though, so restart the API (or wait 15 minutes) before running it again.
+The runner (`scripts/run-newman.js`) passes the admin password from `.env` with `--env-var`, so it never appears in the committed environment file. Each run registers new users with a timestamp, so the collection can be re-run against the same database. A full run makes 13 requests to the auth endpoints, though, so restart the API (or wait 15 minutes) before running it again.
 
 **Evidence:** [`postman/newman-results/newman-cli-output.txt`](postman/newman-results/newman-cli-output.txt) (full CLI run) and [`postman/newman-results/newman-report.xml`](postman/newman-results/newman-report.xml) (JUnit).
 
@@ -452,25 +487,33 @@ The runner (`scripts/run-newman.js`) passes the admin password from `.env` with 
 ┌─────────────────────────┬───────────────────┬───────────────────┐
 │                         │          executed │            failed │
 ├─────────────────────────┼───────────────────┼───────────────────┤
-│                requests │                50 │                 0 │
-│            test-scripts │                50 │                 0 │
-│              assertions │               102 │                 0 │
+│                requests │                63 │                 0 │
+│            test-scripts │                63 │                 0 │
+│              assertions │               126 │                 0 │
 └─────────────────────────┴───────────────────┴───────────────────┘
 ```
 
-To use the collection in Postman: import the collection and `postman/hustlehub-local.postman_environment.json`, set `adminPassword` in the environment, turn off SSL certificate verification, then run the collection.
+To use the collection in Postman: import the collection and `postman/hustlehub-local.postman_environment.json`, set `adminPassword` in the environment, turn off SSL certificate verification (or use the Postman Desktop Agent with Postman on the web), then run the requests in order.
+
+**Per-request evidence:** [`images/Postman Part2/`](images/Postman%20Part2/) has one screenshot for each of the 63 requests, numbered in run order (e.g. `50-accept-request-owner-200.jpg`). Each shows the request, the status code, the response body and the passing test count.
 
 ---
 
 ## Application Screenshots
 
-> _Add screenshots of the running application to `images/app/` and link them here: register, login, browse gigs, booking confirmation, my bookings (client), my gigs and bookings & income (freelancer), admin dashboard, and an inline validation error._
+| | |
+|---|---|
+| **Login** ![Login](images/app/01-login.jpg) | **Inline validation on register** ![Register validation](images/app/02-register-validation.jpg) |
+| **Browse gigs (client)** ![Browse gigs](images/app/03-browse-gigs-client.jpg) | **Job request form** ![Request form](images/app/04-request-form.jpg) |
+| **Request sent** ![Request sent](images/app/05-request-sent.jpg) | **My requests (client)** ![My requests](images/app/06-my-requests-client.jpg) |
+| **Requests & income – accept/decline (freelancer)** ![Requests and income](images/app/07-requests-income-freelancer.jpg) | **My gigs (freelancer)** ![My gigs](images/app/08-my-gigs-freelancer.jpg) |
+| **Admin – users** ![Admin users](images/app/09-admin-users.jpg) | **Admin – transactions** ![Admin transactions](images/app/10-admin-transactions.jpg) |
 
 ---
 
 ## Demonstration Video
 
-> _Add the Part 2 demonstration video link here. It should show authentication, gig creation, booking creation and viewing, and transaction recording._
+> _Add the Part 2 demonstration video link here. It should show authentication, gig creation, a client sending a job request, the freelancer accepting it, and the transaction and income being recorded._
 
 Part 1 video: [https://youtu.be/tYWpZ3LTc-E](https://youtu.be/tYWpZ3LTc-E)
 
@@ -478,4 +521,31 @@ Part 1 video: [https://youtu.be/tYWpZ3LTc-E](https://youtu.be/tYWpZ3LTc-E)
 
 ## Part 1 Evidence
 
-Part 1 (Secure Backend Foundations) Postman screenshots are kept in [`images/`](images/) (`postman1.png` – `postman15.png`). They cover the health check, registration and validation, login, protected routes and the RBAC gig checks from the original JSON-file-backed API.
+Part 1 (Secure Backend Foundations) Postman screenshots are kept in [`images/Postman Part1/`](images/Postman%20Part1/) (`postman1.png` – `postman15.png`). They cover the health check, registration and validation, login, protected routes and the RBAC gig checks from the original JSON-file-backed API.
+
+---
+
+## References
+
+The same references appear as comments next to the code they informed.
+
+| Source | Used in |
+|---|---|
+| adnan kamili (2016) *Is bcrypt.compare vulnerable to timing attack*. Stack Overflow. https://stackoverflow.com/questions/35620979/is-bcrypt-compare-vulnerable-to-timing-attack (Accessed: 11 October 2026) | `authController.js` (dummy hash) |
+| Daniel Gartmann (2016) *How to prevent user enumeration attacks for a login system?* Stack Overflow. https://stackoverflow.com/questions/35827127/how-to-prevent-user-enumeration-attacks-for-a-login-system (Accessed: 11 October 2026) | `authController.js` (login) |
+| OWASP Foundation (n.d.) *Authentication Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html (Accessed: 11 October 2026) | `authController.js` (login) |
+| Auth0 (n.d.) *node-jsonwebtoken: JsonWebToken implementation for node.js*. GitHub. https://github.com/auth0/node-jsonwebtoken (Accessed: 11 October 2026) | `middleware/auth.js` |
+| daniel (2012) *JavaScript NoSQL Injection prevention in MongoDB*. Stack Overflow. https://stackoverflow.com/questions/13436467/javascript-nosql-injection-prevention-in-mongodb (Accessed: 11 October 2026) | `middleware/sanitize.js` |
+| Micah Bala (2019) *How to implement validation in a separate file using express-validator*. Stack Overflow. https://stackoverflow.com/questions/55772477/how-to-implement-validation-in-a-separate-file-using-express-validator (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
+| express-validator (n.d.) *The Validation Chain*. express-validator Documentation. https://express-validator.github.io/docs/guides/validation-chain (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
+| OWASP Foundation (n.d.) *Input Validation Cheat Sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
+| user606521 (2014) *How to remove control characters from string?* Stack Overflow. https://stackoverflow.com/questions/26741455/how-to-remove-control-characters-from-string (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
+| maerics (2011) *Matching a Unicode "name" with a JavaScript Regular Expression*. Stack Overflow. https://stackoverflow.com/questions/5571096/matching-a-unicode-name-with-a-javascript-regular-expression (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
+| MDN contributors (2026) *Unicode character class escape: \p{...}, \P{...}*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape (Accessed: 11 October 2026) | `middleware/fieldRules.js` |
+| Alexander (2020) *Validate input is within a numeric range, possibly a float, using express-validator*. Stack Overflow. https://stackoverflow.com/questions/63404065/validate-input-is-within-a-numeric-range-possibly-a-float-using-express-valida (Accessed: 11 October 2026) | `middleware/fieldRules.js` (money) |
+| xyz83242 (2019) *express-rate-limit - catching the message*. Stack Overflow. https://stackoverflow.com/questions/58486616/express-rate-limit-catching-the-message (Accessed: 11 October 2026) | `middleware/rateLimiter.js` |
+| Helmet.js (n.d.) *Helmet.js*. Helmet Documentation. https://helmetjs.github.io/ (Accessed: 11 October 2026) | `app.js` |
+| Mongoose (n.d.) *How to Use findOneAndUpdate() in Mongoose*. Mongoose Documentation. https://mongoosejs.com/docs/tutorials/findoneandupdate.html (Accessed: 11 October 2026) | `transactionController.js` (accept/decline once) |
+| Timespace (2014) *Where to store JWT in browser? How to protect against CSRF?* Stack Overflow. https://stackoverflow.com/questions/27067251/where-to-store-jwt-in-browser-how-to-protect-against-csrf (Accessed: 11 October 2026) | `frontend/src/auth/AuthContext.jsx` |
+| MDN contributors (2025) *Window: sessionStorage property*. MDN Web Docs. https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage (Accessed: 11 October 2026) | `frontend/src/auth/AuthContext.jsx` |
+| user1210233 (2015) *What does it mean when they say React is XSS protected?* Stack Overflow. https://stackoverflow.com/questions/33644499/what-does-it-mean-when-they-say-react-is-xss-protected (Accessed: 11 October 2026) | `frontend/src/utils/format.js` |

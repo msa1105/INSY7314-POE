@@ -12,6 +12,18 @@ import * as api from '../api/endpoints'
  * permission on its own.
  */
 
+/* Timespace, 2014
+ * Where to store JWT in browser? How to protect against CSRF?
+ * Stack Overflow
+ * https://stackoverflow.com/questions/27067251/where-to-store-jwt-in-browser-how-to-protect-against-csrf
+ * Accessed: 11 October 2026
+ */
+/* MDN contributors, 2025
+ * Window: sessionStorage property
+ * MDN Web Docs
+ * https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage
+ * Accessed: 11 October 2026
+ */
 const STORAGE_KEY = 'hustlehub.session'
 const AuthContext = createContext(null)
 

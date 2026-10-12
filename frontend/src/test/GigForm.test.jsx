@@ -15,6 +15,7 @@ describe('GigForm', () => {
     expect(screen.getByText('Title must be 5–100 characters.')).toBeInTheDocument()
     expect(screen.getByText('Description is required.')).toBeInTheDocument()
     expect(screen.getByText('Price is required.')).toBeInTheDocument()
+    expect(screen.getByText('Category is required.')).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
@@ -25,7 +26,7 @@ describe('GigForm', () => {
     await userEvent.type(screen.getByLabelText(/title/i), '  Website Copywriting  ')
     await userEvent.type(screen.getByLabelText(/description/i), 'Engaging copy for your landing page.')
     await userEvent.type(screen.getByLabelText(/price/i), '750')
-    await userEvent.type(screen.getByLabelText(/category/i), 'Writing')
+    await userEvent.selectOptions(screen.getByLabelText(/category/i), 'Writing')
     await userEvent.click(screen.getByRole('button', { name: /create gig/i }))
 
     expect(onSubmit).toHaveBeenCalledWith({
@@ -35,6 +36,14 @@ describe('GigForm', () => {
       category: 'Writing',
     })
     expect(screen.getByLabelText(/title/i)).toHaveValue('')
+  })
+
+  test('category is a fixed dropdown – free text cannot be entered', () => {
+    render(<GigForm onSubmit={vi.fn()} />)
+    const category = screen.getByLabelText(/category/i)
+    expect(category.tagName).toBe('SELECT')
+    const options = Array.from(category.options).map((o) => o.value).filter(Boolean)
+    expect(options).toEqual(expect.arrayContaining(['Design', 'Writing', 'Development', 'Other']))
   })
 
   test('edit mode pre-fills decoded values and shows server validation errors', async () => {

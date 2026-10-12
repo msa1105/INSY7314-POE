@@ -38,11 +38,18 @@ function useTestDatabase() {
 
 let counter = 0;
 
+/** 1 -> "A", 27 -> "AA": names may only contain letters, so the counter is spelled out. */
+function letters(n) {
+  let out = '';
+  for (; n > 0; n = Math.floor((n - 1) / 26)) out = String.fromCharCode(65 + ((n - 1) % 26)) + out;
+  return out;
+}
+
 /** Registers a client or freelancer through the API and returns { token, user }. */
 async function registerAndLogin(role) {
   counter += 1;
   const res = await request(app).post('/api/auth/register').send({
-    name:     `Test ${role} ${counter}`,
+    name:     `Test ${role} ${letters(counter)}`,
     email:    `${role}${counter}@hustlehub.test`,
     password: PASSWORD,
     role,
@@ -72,10 +79,22 @@ function createGig(token, gig = VALID_GIG) {
   return request(app).post('/api/gigs').set('Authorization', `Bearer ${token}`).send(gig);
 }
 
-function bookGig(token, gigId) {
-  return request(app).post('/api/transactions').set('Authorization', `Bearer ${token}`).send({ gigId });
+const VALID_REQUEST = {
+  details: 'Need a logo for my bakery, warm colours, delivered within a week.',
+  amount:  800,
+};
+
+/** Client sends a job request for a gig (details + offered amount). */
+function sendRequest(token, gigId, overrides = {}) {
+  return request(app).post('/api/transactions').set('Authorization', `Bearer ${token}`)
+    .send({ gigId, ...VALID_REQUEST, ...overrides });
+}
+
+/** Freelancer accepts or declines a request. */
+function respond(token, txId, status) {
+  return request(app).patch(`/api/transactions/${txId}`).set('Authorization', `Bearer ${token}`).send({ status });
 }
 
 module.exports = {
-  app, useTestDatabase, registerAndLogin, createAdminAndLogin, createGig, bookGig, VALID_GIG, PASSWORD,
+  app, useTestDatabase, registerAndLogin, createAdminAndLogin, createGig, sendRequest, respond, VALID_GIG, VALID_REQUEST, PASSWORD,
 };

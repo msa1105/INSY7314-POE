@@ -51,7 +51,7 @@ export default function LoginPage() {
         <Alert type="error">{formError}</Alert>
 
         <FormField
-          label="Email" name="email" type="email" autoComplete="email"
+          label="Email" name="email" type="email" autoComplete="email" maxLength={254}
           value={values.email} onChange={handleChange} error={errors.email}
         />
         <FormField

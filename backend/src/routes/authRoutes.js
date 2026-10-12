@@ -17,6 +17,7 @@ const { register, login } = require('../controllers/authController');
 const validate             = require('../middleware/validate');
 const { authLimiter }      = require('../middleware/rateLimiter');
 const { PASSWORD_POLICY, ROLES } = require('../config/constants');
+const { PERSON_NAME, isString, stringField, singleLine } = require('../middleware/fieldRules');
 
 const router = Router();
 
@@ -25,20 +26,22 @@ router.use(authLimiter);
 
 // ── Validation Chains ──────────────────────────────────────────────────────
 
+const emailField = () =>
+  stringField('email', 'Email')
+    .isLength({ max: 254 }).withMessage('Email must be at most 254 characters.')
+    .isEmail().withMessage('A valid email address is required.')
+    .normalizeEmail();                     // Lowercase, remove dots from Gmail, etc.
+
 const registerValidation = [
-  body('name')
-    .trim()
-    .notEmpty().withMessage('Name is required.')
-    .isLength({ min: 2, max: 80 }).withMessage('Name must be between 2 and 80 characters.')
+  singleLine(stringField('name', 'Name'), 'Name')
+    .isLength({ min: 2, max: 80 }).withMessage('Name must be between 2 and 80 characters.').bail()
+    .matches(PERSON_NAME).withMessage('Name may only contain letters, spaces, apostrophes, hyphens and full stops.')
     .escape(),                              // HTML-encode special chars
 
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required.')
-    .isEmail().withMessage('A valid email address is required.')
-    .normalizeEmail(),                     // Lowercase, remove dots from Gmail, etc.
+  emailField(),
 
   body('password')
+    .custom(isString).withMessage('Password is required.').bail()
     .notEmpty().withMessage('Password is required.')
     .isLength({ min: PASSWORD_POLICY.MIN_LENGTH }).withMessage('Password must be at least 8 characters.')
     .isLength({ max: PASSWORD_POLICY.MAX_LENGTH }).withMessage('Password must be at most 128 characters.') // Prevent bcrypt DoS
@@ -49,18 +52,15 @@ const registerValidation = [
 
   body('role')
     .optional()
-    .isIn([ROLES.CLIENT, ROLES.FREELANCER]).withMessage('Role must be "client" or "freelancer".') // admin cannot self-register
-    .trim(),
+    .custom(isString).withMessage('Role must be "client" or "freelancer".').bail()
+    .isIn([ROLES.CLIENT, ROLES.FREELANCER]).withMessage('Role must be "client" or "freelancer".'), // admin cannot self-register
 ];
 
 const loginValidation = [
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required.')
-    .isEmail().withMessage('A valid email address is required.')
-    .normalizeEmail(),
+  emailField(),
 
   body('password')
+    .custom(isString).withMessage('Password is required.').bail()
     .notEmpty().withMessage('Password is required.')
     .isLength({ max: PASSWORD_POLICY.MAX_LENGTH }).withMessage('Password too long.'), // Prevent bcrypt DoS
 ];

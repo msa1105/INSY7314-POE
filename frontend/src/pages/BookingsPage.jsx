@@ -6,8 +6,9 @@ import Alert from '../components/Alert'
 import { decodeEntities, formatDate, formatRand } from '../utils/format'
 
 /**
- * Clients: bookings they have made.
- * Freelancers: bookings received for their gigs plus an income summary.
+ * Clients: job requests they have sent and whether each was accepted.
+ * Freelancers: requests received for their gigs (accept or decline pending
+ * ones) plus an income summary built from accepted requests.
  */
 export default function BookingsPage() {
   const { token, user } = useAuth()
@@ -16,6 +17,9 @@ export default function BookingsPage() {
   const [income, setIncome] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [respondingId, setRespondingId] = useState(null)
+  const [version, setVersion] = useState(0) // bump to reload after a response
 
   useEffect(() => {
     let cancelled = false
@@ -36,20 +40,36 @@ export default function BookingsPage() {
     }
     load()
     return () => { cancelled = true }
-  }, [token, isFreelancer])
+  }, [token, isFreelancer, version])
+
+  async function handleRespond(tx, status) {
+    setRespondingId(tx.id)
+    setError('')
+    setSuccess('')
+    try {
+      const { message } = await api.respondToRequest(token, tx.id, status)
+      setSuccess(message)
+      setVersion((v) => v + 1)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setRespondingId(null)
+    }
+  }
 
   return (
     <section className="page">
       <div className="page__header">
         <div>
-          <h1>{isFreelancer ? 'Bookings & income' : 'My bookings'}</h1>
+          <h1>{isFreelancer ? 'Requests & income' : 'My requests'}</h1>
           <p className="muted">
-            {isFreelancer ? 'Bookings clients have made for your gigs.' : 'Services you have booked.'}
+            {isFreelancer ? 'Job requests clients have sent you. Accepting one counts as payment.' : 'Job requests you have sent to freelancers.'}
           </p>
         </div>
       </div>
 
       <Alert type="error">{error}</Alert>
+      <Alert type="success">{success}</Alert>
 
       {isFreelancer && income && (
         <div className="stats">
@@ -58,7 +78,7 @@ export default function BookingsPage() {
             <span className="stat__value">{formatRand(income.totalIncome)}</span>
           </div>
           <div className="card stat">
-            <span className="stat__label">Bookings</span>
+            <span className="stat__label">Accepted jobs</span>
             <span className="stat__value">{income.bookings}</span>
           </div>
           <div className="card stat">
@@ -72,7 +92,7 @@ export default function BookingsPage() {
         <p className="muted">Loading…</p>
       ) : transactions.length === 0 ? (
         <div className="empty">
-          {isFreelancer ? 'No bookings yet.' : <>No bookings yet. <Link to="/gigs">Browse gigs</Link></>}
+          {isFreelancer ? 'No requests yet.' : <>No requests yet. <Link to="/gigs">Browse gigs</Link></>}
         </div>
       ) : (
         <div className="card table-wrap">
@@ -82,8 +102,10 @@ export default function BookingsPage() {
                 <th>Date</th>
                 <th>Gig</th>
                 <th>{isFreelancer ? 'Client' : 'Freelancer'}</th>
+                <th>Work details</th>
                 <th>Status</th>
-                <th className="num">Amount</th>
+                <th className="num">Offer</th>
+                {isFreelancer && <th>Action</th>}
               </tr>
             </thead>
             <tbody>
@@ -94,8 +116,21 @@ export default function BookingsPage() {
                     <td>{formatDate(tx.createdAt)}</td>
                     <td>{decodeEntities(tx.gigTitle)}</td>
                     <td>{party ? decodeEntities(party.name) : '—'}</td>
+                    <td className="details">{decodeEntities(tx.details)}</td>
                     <td><span className={`status status--${tx.status}`}>{tx.status}</span></td>
                     <td className="num">{formatRand(tx.amount)}</td>
+                    {isFreelancer && (
+                      <td>
+                        {tx.status === 'pending' && (
+                          <div className="form__actions">
+                            <button type="button" className="btn btn--primary btn--sm" disabled={respondingId === tx.id}
+                              onClick={() => handleRespond(tx, 'accepted')}>Accept</button>
+                            <button type="button" className="btn btn--ghost btn--sm" disabled={respondingId === tx.id}
+                              onClick={() => handleRespond(tx, 'declined')}>Decline</button>
+                          </div>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 )
               })}

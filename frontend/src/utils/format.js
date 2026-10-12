@@ -8,6 +8,12 @@
  * "<script>" is shown literally and never executed.
  */
 
+/* user1210233, 2015
+ * What does it mean when they say React is XSS protected?
+ * Stack Overflow
+ * https://stackoverflow.com/questions/33644499/what-does-it-mean-when-they-say-react-is-xss-protected
+ * Accessed: 11 October 2026
+ */
 const ENTITIES = {
   '&amp;': '&',
   '&lt;': '<',

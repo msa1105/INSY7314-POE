@@ -3,7 +3,7 @@ import FormField from './FormField'
 import Alert from './Alert'
 import { fieldErrorMap } from '../api/client'
 import { decodeEntities } from '../utils/format'
-import { validateGig } from '../utils/validation'
+import { GIG_CATEGORIES, validateGig } from '../utils/validation'
 
 const EMPTY = { title: '', description: '', price: '', category: '' }
 
@@ -45,7 +45,7 @@ export default function GigForm({ initialGig, onSubmit, onCancel }) {
         title: values.title.trim(),
         description: values.description.trim(),
         price: Number(values.price),
-        category: values.category.trim(),
+        category: values.category,
       })
       if (!isEdit) setValues(EMPTY)
     } catch (err) {
@@ -72,13 +72,16 @@ export default function GigForm({ initialGig, onSubmit, onCancel }) {
       />
       <div className="form__row">
         <FormField
-          label="Price (ZAR)" name="price" type="number" min="1" step="0.01" value={values.price}
+          label="Price (ZAR)" name="price" type="number" min="1" max="1000000" step="0.01" inputMode="decimal" value={values.price}
           onChange={handleChange} error={errors.price}
         />
         <FormField
-          label="Category" name="category" value={values.category} onChange={handleChange}
-          error={errors.category} maxLength={50} placeholder="e.g. Design"
-        />
+          label="Category" name="category" as="select" value={values.category} onChange={handleChange}
+          error={errors.category}
+        >
+          <option value="" disabled>Choose a category</option>
+          {GIG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+        </FormField>
       </div>
 
       <div className="form__actions">

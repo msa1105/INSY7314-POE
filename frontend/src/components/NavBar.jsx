@@ -4,12 +4,12 @@ import { useAuth } from '../auth/AuthContext'
 const LINKS = {
   client: [
     { to: '/gigs', label: 'Browse gigs' },
-    { to: '/bookings', label: 'My bookings' },
+    { to: '/bookings', label: 'My requests' },
   ],
   freelancer: [
     { to: '/gigs', label: 'Browse gigs' },
     { to: '/my-gigs', label: 'My gigs' },
-    { to: '/bookings', label: 'Bookings & income' },
+    { to: '/bookings', label: 'Requests & income' },
   ],
   admin: [
     { to: '/gigs', label: 'Gigs' },
@@ -30,7 +30,6 @@ export default function NavBar() {
     <header className="navbar">
       <div className="navbar__inner">
         <NavLink to={user ? '/gigs' : '/login'} className="brand">
-          <span className="brand__mark" aria-hidden="true">H</span>
           <span>HustleHub<span className="brand__plus">+</span></span>
         </NavLink>
 

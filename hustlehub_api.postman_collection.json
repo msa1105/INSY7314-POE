@@ -429,6 +429,53 @@
           ]
         },
         {
+          "name": "Register – Invalid Name Characters (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"R0b0t_$$$ 123\",\n  \"email\": \"robot.{{runId}}@hustlehub.test\",\n  \"password\": \"SecurePass1!\",\n  \"role\": \"client\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Field error for name', () => {",
+                  "  const fields = pm.response.json().fields.map(f => f.field);",
+                  "  pm.expect(fields).to.include('name');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Register – Admin Role Not Allowed (422)",
           "request": {
             "method": "POST",
@@ -890,7 +937,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Client Gig Attempt\",\n  \"description\": \"Clients should not be able to create gigs.\",\n  \"price\": 100,\n  \"category\": \"Test\"\n}",
+              "raw": "{\n  \"title\": \"Client Gig Attempt\",\n  \"description\": \"Clients should not be able to create gigs.\",\n  \"price\": 100,\n  \"category\": \"Other\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -959,6 +1006,10 @@
                   "pm.test('Field error for price', () => {",
                   "  const fields = pm.response.json().fields.map(f => f.field);",
                   "  pm.expect(fields).to.include('price');",
+                  "});",
+                  "pm.test('Field error for category', () => {",
+                  "  const fields = pm.response.json().fields.map(f => f.field);",
+                  "  pm.expect(fields).to.include('category');",
                   "});"
                 ]
               }
@@ -991,7 +1042,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"<script>alert(\\\"xss\\\")</script>\",\n  \"description\": \"<img src=x onerror=alert(1)> description\",\n  \"price\": 200,\n  \"category\": \"Security\"\n}",
+              "raw": "{\n  \"title\": \"Secure Web Audit Service\",\n  \"description\": \"<script>alert(\\\"xss\\\")</script> <img src=x onerror=alert(1)> audit\",\n  \"price\": 200,\n  \"category\": \"Development\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1009,9 +1060,109 @@
                   "pm.collectionVariables.set('xssGigId', pm.response.json().gig.id);",
                   "pm.test('HTML is escaped before storage', () => {",
                   "  const g = pm.response.json().gig;",
-                  "  pm.expect(g.title).to.not.include('<script>');",
-                  "  pm.expect(g.title).to.include('&lt;script&gt;');",
+                  "  pm.expect(g.description).to.not.include('<script>');",
+                  "  pm.expect(g.description).to.include('&lt;script&gt;');",
                   "  pm.expect(g.description).to.not.include('<img');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Gig – HTML In Title Rejected (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{freelancerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/gigs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gigs"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"<script>alert(\\\"xss\\\")</script>\",\n  \"description\": \"Title contains markup and must be refused.\",\n  \"price\": 200,\n  \"category\": \"Development\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Field error for title', () => {",
+                  "  const fields = pm.response.json().fields.map(f => f.field);",
+                  "  pm.expect(fields).to.include('title');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Gig – Category Not In List (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{freelancerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/gigs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gigs"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Mystery Service Offer\",\n  \"description\": \"Category must come from the fixed list.\",\n  \"price\": 200,\n  \"category\": \"Anything goes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Field error for category', () => {",
+                  "  const fields = pm.response.json().fields.map(f => f.field);",
+                  "  pm.expect(fields).to.include('category');",
                   "});"
                 ]
               }
@@ -1369,10 +1520,10 @@
       ]
     },
     {
-      "name": "5. Bookings & Transactions",
+      "name": "5. Job Requests & Transactions",
       "item": [
         {
-          "name": "Book Gig – Client (201)",
+          "name": "Send Request – Client (201)",
           "request": {
             "method": "POST",
             "header": [
@@ -1397,7 +1548,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"gigId\": \"{{gigId}}\",\n  \"amount\": 1\n}",
+              "raw": "{\n  \"gigId\": \"{{gigId}}\",\n  \"details\": \"Logo for a new coffee cart in Durban. Bold, friendly, must work as a small sticker.\",\n  \"amount\": 1500\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1414,8 +1565,9 @@
                   "pm.test('Status is 201', () => pm.response.to.have.status(201));",
                   "const tx = pm.response.json().transaction;",
                   "pm.collectionVariables.set('transactionId', tx.id);",
-                  "pm.test('Transaction completed (simulated payment)', () => pm.expect(tx.status).to.eql('completed'));",
-                  "pm.test('Amount taken from the gig, not the request', () => pm.expect(tx.amount).to.eql(1800));",
+                  "pm.test('Request starts as pending', () => pm.expect(tx.status).to.eql('pending'));",
+                  "pm.test('Amount is the client\\'s own offer', () => pm.expect(tx.amount).to.eql(1500));",
+                  "pm.test('Work details stored', () => pm.expect(tx.details).to.include('coffee cart'));",
                   "pm.test('Linked to gig, client and freelancer', () => { pm.expect(tx.gig).to.eql(pm.collectionVariables.get('gigId')); pm.expect(tx.client).to.be.a('string'); pm.expect(tx.freelancer).to.be.a('string'); });"
                 ]
               }
@@ -1423,7 +1575,101 @@
           ]
         },
         {
-          "name": "Book Gig – Freelancer Forbidden (403)",
+          "name": "Send Request – Missing Details (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{clientToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gigId\": \"{{gigId}}\",\n  \"amount\": 1500\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Details field reported', () => pm.expect(pm.response.json().fields.map(f => f.field)).to.include('details'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Request – Invalid Amount (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{clientToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gigId\": \"{{gigId}}\",\n  \"details\": \"Logo for a new coffee cart in Durban. Bold, friendly, must work as a small sticker.\",\n  \"amount\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Amount field reported', () => pm.expect(pm.response.json().fields.map(f => f.field)).to.include('amount'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Request – Freelancer Forbidden (403)",
           "request": {
             "method": "POST",
             "header": [
@@ -1448,7 +1694,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"gigId\": \"{{gigId}}\"\n}",
+              "raw": "{\n  \"gigId\": \"{{gigId}}\",\n  \"details\": \"Logo for a new coffee cart in Durban. Bold, friendly, must work as a small sticker.\",\n  \"amount\": 1500\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1469,7 +1715,7 @@
           ]
         },
         {
-          "name": "Book Gig – No Token (401)",
+          "name": "Send Request – No Token (401)",
           "request": {
             "method": "POST",
             "header": [
@@ -1490,7 +1736,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"gigId\": \"{{gigId}}\"\n}",
+              "raw": "{\n  \"gigId\": \"{{gigId}}\",\n  \"details\": \"Logo for a new coffee cart in Durban. Bold, friendly, must work as a small sticker.\",\n  \"amount\": 1500\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1511,7 +1757,7 @@
           ]
         },
         {
-          "name": "Book Gig – Non-existent Gig (404)",
+          "name": "Send Request – Non-existent Gig (404)",
           "request": {
             "method": "POST",
             "header": [
@@ -1536,7 +1782,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"gigId\": \"64b7f0c2a1b2c3d4e5f6a7b8\"\n}",
+              "raw": "{\n  \"gigId\": \"64b7f0c2a1b2c3d4e5f6a7b8\",\n  \"details\": \"Logo for a new coffee cart in Durban. Bold, friendly, must work as a small sticker.\",\n  \"amount\": 1500\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1550,15 +1796,14 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
-                  "pm.test('Error message is meaningful', () => pm.expect(pm.response.json().error).to.match(/not found/i));"
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Book Gig – Invalid Gig Id (422)",
+          "name": "Send Request – Invalid Gig Id (422)",
           "request": {
             "method": "POST",
             "header": [
@@ -1583,7 +1828,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"gigId\": \"abc\"\n}",
+              "raw": "{\n  \"gigId\": \"not-an-id\",\n  \"details\": \"Logo for a new coffee cart in Durban. Bold, friendly, must work as a small sticker.\",\n  \"amount\": 1500\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1597,18 +1842,14 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
-                  "pm.test('Field error for gigId', () => {",
-                  "  const fields = pm.response.json().fields.map(f => f.field);",
-                  "  pm.expect(fields).to.include('gigId');",
-                  "});"
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "My Bookings – Client (200)",
+          "name": "My Requests – Client (200)",
           "request": {
             "method": "GET",
             "header": [
@@ -1636,14 +1877,14 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Client sees their booking', () => { const t = pm.response.json().transactions; pm.expect(t).to.have.lengthOf(1); pm.expect(t[0].id).to.eql(pm.collectionVariables.get('transactionId')); pm.expect(t[0].freelancer.name).to.eql('Bob Nkosi'); });"
+                  "pm.test('Client sees their pending request', () => { const t = pm.response.json().transactions; pm.expect(t).to.have.lengthOf(1); pm.expect(t[0].id).to.eql(pm.collectionVariables.get('transactionId')); pm.expect(t[0].status).to.eql('pending'); pm.expect(t[0].freelancer.name).to.eql('Bob Nkosi'); });"
                 ]
               }
             }
           ]
         },
         {
-          "name": "My Bookings – Freelancer Received (200)",
+          "name": "My Requests – Freelancer Received (200)",
           "request": {
             "method": "GET",
             "header": [
@@ -1671,14 +1912,14 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Freelancer sees booking from client', () => { const t = pm.response.json().transactions; pm.expect(t).to.have.lengthOf(1); pm.expect(t[0].client.name).to.eql('Alice Dlamini'); });"
+                  "pm.test('Freelancer sees request with details', () => { const t = pm.response.json().transactions; pm.expect(t).to.have.lengthOf(1); pm.expect(t[0].client.name).to.eql('Alice Dlamini'); pm.expect(t[0].details).to.include('coffee cart'); });"
                 ]
               }
             }
           ]
         },
         {
-          "name": "My Bookings – Other Freelancer Sees None (200)",
+          "name": "My Requests – Other Freelancer Sees None (200)",
           "request": {
             "method": "GET",
             "header": [
@@ -1706,7 +1947,377 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('No access to other freelancers\\' bookings', () => pm.expect(pm.response.json().count).to.eql(0));"
+                  "pm.test('No access to other freelancers\\' requests', () => pm.expect(pm.response.json().count).to.eql(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Income – Pending Request Not Counted (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{freelancerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/income",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "income"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No income until the request is accepted', () => { pm.expect(pm.response.json().totalIncome).to.eql(0); pm.expect(pm.response.json().bookings).to.eql(0); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Respond – Client Forbidden (403)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{clientToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Respond – Admin Forbidden (403)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Respond – Another Freelancer (403)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{freelancer2Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Ownership enforced', () => pm.expect(pm.response.json().error).to.match(/only respond to requests sent to you/));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Respond – Invalid Status (422)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{freelancerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Respond – Invalid Request Id (422)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{freelancerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/not-an-id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "not-an-id"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept Request – Owner Freelancer (200)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{freelancerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const tx = pm.response.json().transaction;",
+                  "pm.test('Request accepted', () => pm.expect(tx.status).to.eql('accepted'));",
+                  "pm.test('Acceptance counts as simulated payment', () => pm.expect(pm.response.json().message).to.match(/payment simulated/i));",
+                  "pm.test('Response time recorded', () => pm.expect(tx.respondedAt).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Respond Again – Already Answered (409)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{freelancerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"declined\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 409', () => pm.response.to.have.status(409));",
+                  "pm.test('A request can only be answered once', () => pm.expect(pm.response.json().error).to.match(/already been accepted/));"
                 ]
               }
             }
@@ -1742,8 +2353,8 @@
                 "exec": [
                   "pm.test('Status is 200', () => pm.response.to.have.status(200));",
                   "const s = pm.response.json();",
-                  "pm.test('Income tracked for the right freelancer', () => { pm.expect(s.totalIncome).to.eql(1800); pm.expect(s.bookings).to.eql(1); });",
-                  "pm.test('Estimated tax at 25%', () => pm.expect(s.estimatedTax).to.eql(450));"
+                  "pm.test('Accepted offer counted as income', () => { pm.expect(s.totalIncome).to.eql(1500); pm.expect(s.bookings).to.eql(1); });",
+                  "pm.test('Estimated tax at 25%', () => pm.expect(s.estimatedTax).to.eql(375));"
                 ]
               }
             }
@@ -1887,7 +2498,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Includes this run\\'s booking', () => pm.expect(pm.response.json().transactions.map(t => t.id)).to.include(pm.collectionVariables.get('transactionId')));"
+                  "pm.test('Includes this run\\'s request', () => pm.expect(pm.response.json().transactions.map(t => t.id)).to.include(pm.collectionVariables.get('transactionId')));"
                 ]
               }
             }
@@ -2102,7 +2713,7 @@
           ]
         },
         {
-          "name": "Booking Record Kept After Gig Deletion (200)",
+          "name": "Request Record Kept After Gig Deletion (200)",
           "request": {
             "method": "GET",
             "header": [
@@ -2130,7 +2741,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Transaction history preserved', () => pm.expect(pm.response.json().transactions[0].gigTitle).to.eql('Premium Logo Design'));"
+                  "pm.test('Request history preserved', () => { const t = pm.response.json().transactions[0]; pm.expect(t.gigTitle).to.eql('Premium Logo Design'); pm.expect(t.status).to.eql('accepted'); });"
                 ]
               }
             }

@@ -13,6 +13,12 @@
 
 const logger = require('../utils/logger');
 
+/* daniel, 2012
+ * JavaScript NoSQL Injection prevention in MongoDB
+ * Stack Overflow
+ * https://stackoverflow.com/questions/13436467/javascript-nosql-injection-prevention-in-mongodb
+ * Accessed: 11 October 2026
+ */
 function isUnsafeKey(key) {
   return key.startsWith('$') || key.includes('.');
 }

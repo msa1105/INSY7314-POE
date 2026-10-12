@@ -1,39 +1,47 @@
+
+> hustlehub-frontend@1.0.0 test:report
+> vitest run --reporter=verbose --reporter=junit --outputFile.junit=test-results/junit.xml
+
 (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
   - `__dirname` (vite.config.js:17:30). Use `import.meta.dirname` instead
 Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
 
- RUN  v5.0.3 frontend/
+ RUN  v5.0.3 C:/Users/Saif/Desktop/GitHubREPOS/INSY7314/INSY7314/frontend
 
- ✓ src/test/utils.test.js > validation helpers > checkPassword enforces the same policy as the API 6ms
- ✓ src/test/utils.test.js > validation helpers > validateRegister only allows client or freelancer roles 2ms
- ✓ src/test/utils.test.js > validation helpers > validateGig checks price range 3ms
- ✓ src/test/utils.test.js > format helpers > decodeEntities reverses the API's HTML escaping 2ms
- ✓ src/test/utils.test.js > format helpers > formatRand formats South African Rand 2ms
- ✓ src/test/ProtectedRoute.test.jsx > ProtectedRoute > redirects logged-out users to /login 93ms
- ✓ src/test/ProtectedRoute.test.jsx > ProtectedRoute > redirects users with the wrong role to /gigs 11ms
- ✓ src/test/ProtectedRoute.test.jsx > ProtectedRoute > renders the page for the allowed role 6ms
- ✓ src/test/ProtectedRoute.test.jsx > ProtectedRoute > treats an expired token as logged out 6ms
- ✓ src/test/LoginPage.test.jsx > LoginPage > renders the email and password fields and a submit button 256ms
- ✓ src/test/LoginPage.test.jsx > LoginPage > shows validation errors and does not call the API when fields are empty 79ms
- ✓ src/test/GigsPage.test.jsx > GigsPage > client sees gigs with Book buttons; escaped text is shown as plain text 254ms
- ✓ src/test/GigForm.test.jsx > GigForm > shows field errors for invalid input and does not submit 392ms
- ✓ src/test/GigsPage.test.jsx > GigsPage > client books a gig through the confirmation step 119ms
- ✓ src/test/GigsPage.test.jsx > GigsPage > cancelling the confirmation does not create a booking 140ms
- ✓ src/test/GigsPage.test.jsx > GigsPage > freelancers cannot book gigs (no Book button) 15ms
- ✓ src/test/GigsPage.test.jsx > GigsPage > shows a friendly error if the booking is rate limited 123ms
- ✓ src/test/LoginPage.test.jsx > LoginPage > logs in with valid credentials and redirects to the gigs page 545ms
- ✓ src/test/RegisterPage.test.jsx > RegisterPage > rejects a weak password before contacting the server 1181ms
- ✓ src/test/LoginPage.test.jsx > LoginPage > shows the server's generic error on bad credentials and clears the password 564ms
- ✓ src/test/GigForm.test.jsx > GigForm > submits trimmed values with a numeric price and resets 1328ms
- ✓ src/test/GigForm.test.jsx > GigForm > edit mode pre-fills decoded values and shows server validation errors 61ms
- ✓ src/test/LoginPage.test.jsx > LoginPage > never shows raw server error details on a 500 550ms
- ✓ src/test/RegisterPage.test.jsx > RegisterPage > flags mismatched passwords 1049ms
- ✓ src/test/RegisterPage.test.jsx > RegisterPage > registers a freelancer with the chosen role and goes to My gigs 1133ms
- ✓ src/test/RegisterPage.test.jsx > RegisterPage > shows the server error when the email is already registered 1049ms
+ ✓ src/test/utils.test.js > validation helpers > checkPassword enforces the same policy as the API 2ms
+ ✓ src/test/utils.test.js > validation helpers > validateRegister only allows client or freelancer roles 0ms
+ ✓ src/test/utils.test.js > validation helpers > validateGig checks price range 1ms
+ ✓ src/test/utils.test.js > format helpers > decodeEntities reverses the API's HTML escaping 0ms
+ ✓ src/test/utils.test.js > format helpers > formatRand formats South African Rand 1ms
+ ✓ src/test/ProtectedRoute.test.jsx > ProtectedRoute > redirects logged-out users to /login 28ms
+ ✓ src/test/ProtectedRoute.test.jsx > ProtectedRoute > redirects users with the wrong role to /gigs 5ms
+ ✓ src/test/ProtectedRoute.test.jsx > ProtectedRoute > renders the page for the allowed role 3ms
+ ✓ src/test/ProtectedRoute.test.jsx > ProtectedRoute > treats an expired token as logged out 3ms
+ ✓ src/test/LoginPage.test.jsx > LoginPage > renders the email and password fields and a submit button 112ms
+ ✓ src/test/LoginPage.test.jsx > LoginPage > shows validation errors and does not call the API when fields are empty 83ms
+ ✓ src/test/BookingsPage.test.jsx > BookingsPage > freelancer accepts a pending request and the list and income reload 183ms
+ ✓ src/test/GigsPage.test.jsx > GigsPage > client sees gigs with Request buttons; escaped text is shown as plain text 140ms
+ ✓ src/test/BookingsPage.test.jsx > BookingsPage > freelancer sees the API error if a request was already answered 62ms
+ ✓ src/test/BookingsPage.test.jsx > BookingsPage > client sees request status but cannot accept or decline 16ms
+ ✓ src/test/GigForm.test.jsx > GigForm > shows field errors for invalid input and does not submit 242ms
+ ✓ src/test/LoginPage.test.jsx > LoginPage > logs in with valid credentials and redirects to the gigs page 554ms
+ ✓ src/test/RegisterPage.test.jsx > RegisterPage > rejects a weak password before contacting the server 965ms
+ ✓ src/test/GigsPage.test.jsx > GigsPage > client sends a job request with work details and their own offer 834ms
+ ✓ src/test/GigsPage.test.jsx > GigsPage > invalid request input is caught inline and nothing is sent 292ms
+ ✓ src/test/GigsPage.test.jsx > GigsPage > cancelling the request form sends nothing 46ms
+ ✓ src/test/GigsPage.test.jsx > GigsPage > freelancers cannot request gigs (no Request button) 15ms
+ ✓ src/test/LoginPage.test.jsx > LoginPage > shows the server's generic error on bad credentials and clears the password 587ms
+ ✓ src/test/GigForm.test.jsx > GigForm > submits trimmed values with a numeric price and resets 1358ms
+ ✓ src/test/GigForm.test.jsx > GigForm > edit mode pre-fills decoded values and shows server validation errors 63ms
+ ✓ src/test/LoginPage.test.jsx > LoginPage > never shows raw server error details on a 500 580ms
+ ✓ src/test/GigsPage.test.jsx > GigsPage > shows a friendly error if requests are rate limited 706ms
+ ✓ src/test/RegisterPage.test.jsx > RegisterPage > flags mismatched passwords 1057ms
+ ✓ src/test/RegisterPage.test.jsx > RegisterPage > registers a freelancer with the chosen role and goes to My gigs 1088ms
+ ✓ src/test/RegisterPage.test.jsx > RegisterPage > shows the server error when the email is already registered 1084ms
 
- Test Files  6 passed (6)
-      Tests  26 passed (26)
-   Start at  22:09:08
-   Duration  7.52s (environment 49%, tests 35%, setup 8%, import 4%, transform 3%, worker 1%)
+ Test Files  7 passed (7)
+      Tests  30 passed (30)
+   Start at  18:31:21
+   Duration  5.25s (tests 61%, environment 28%, setup 6%, import 3%, transform 2%)
 
-JUNIT report written to frontend/test-results/junit.xml
+JUNIT report written to C:/Users/Saif/Desktop/GitHubREPOS/INSY7314/INSY7314/frontend/test-results/junit.xml
