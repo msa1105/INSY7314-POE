@@ -590,11 +590,11 @@ To use the collection in Postman: import the collection and `postman/hustlehub-l
 
 ## Demonstration Video
 
-> _Add the Part 2 demonstration video link here. It should show authentication, gig creation, a client sending a job request, the freelancer accepting it, and the transaction and income being recorded._
+
 
 Part 1 video: [https://youtu.be/tYWpZ3LTc-E](https://youtu.be/tYWpZ3LTc-E)
 
----
+Part 2 video: [https://youtu.be/IM-GnKFraY4](https://youtu.be/IM-GnKFraY4)
 
 ## Part 1 Evidence
 
