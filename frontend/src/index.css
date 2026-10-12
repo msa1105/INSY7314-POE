@@ -72,9 +72,10 @@ a { color: var(--primary); }
 .badge--admin { background: #fff4e5; color: #9a5b00; }
 .chip { font-size: 0.8rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); }
 .status { font-size: 0.8rem; font-weight: 600; text-transform: capitalize; padding: 2px 8px; border-radius: 999px; }
-.status--completed { background: var(--success-soft); color: var(--success); }
+.status--accepted { background: var(--success-soft); color: var(--success); }
 .status--pending { background: #fff4e5; color: #9a5b00; }
-.status--refunded { background: var(--bg); color: var(--muted); }
+.table .details { max-width: 280px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.status--declined { background: var(--bg); color: var(--muted); }
 .empty { text-align: center; color: var(--muted); padding: 48px 16px; border: 1px dashed var(--border); border-radius: var(--radius); background: var(--surface); }
 
 /* ── Forms ──────────────────────────────────────────────── */

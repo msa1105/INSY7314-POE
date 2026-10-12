@@ -72,10 +72,22 @@ function createGig(token, gig = VALID_GIG) {
   return request(app).post('/api/gigs').set('Authorization', `Bearer ${token}`).send(gig);
 }
 
-function bookGig(token, gigId) {
-  return request(app).post('/api/transactions').set('Authorization', `Bearer ${token}`).send({ gigId });
+const VALID_REQUEST = {
+  details: 'Need a logo for my bakery, warm colours, delivered within a week.',
+  amount:  800,
+};
+
+/** Client sends a job request for a gig (details + offered amount). */
+function sendRequest(token, gigId, overrides = {}) {
+  return request(app).post('/api/transactions').set('Authorization', `Bearer ${token}`)
+    .send({ gigId, ...VALID_REQUEST, ...overrides });
+}
+
+/** Freelancer accepts or declines a request. */
+function respond(token, txId, status) {
+  return request(app).patch(`/api/transactions/${txId}`).set('Authorization', `Bearer ${token}`).send({ status });
 }
 
 module.exports = {
-  app, useTestDatabase, registerAndLogin, createAdminAndLogin, createGig, bookGig, VALID_GIG, PASSWORD,
+  app, useTestDatabase, registerAndLogin, createAdminAndLogin, createGig, sendRequest, respond, VALID_GIG, VALID_REQUEST, PASSWORD,
 };

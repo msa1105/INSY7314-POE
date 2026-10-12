@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * transactionController.js – Booking, Transaction & Income Controller
+ * transactionController.js – Job Request, Transaction & Income Controller
  *
- * Simulates payment processing and records transactions from bookings.
+ * Clients send job requests; freelancers accept (simulated payment) or decline.
  * Provides booking history for clients and freelancers, and income
  * tracking for freelancers.
  *
@@ -21,34 +21,36 @@ const PARTY_FIELDS = 'name email';
 
 /**
  * POST /api/transactions
- * Client books a gig → simulated payment → transaction record created.
- * Body: { gigId }
+ * Client sends a job request for a gig: work details + the amount they are
+ * willing to pay. The request starts as `pending` until the freelancer responds.
+ * Body: { gigId, details, amount }
  * Access: client only
  */
 async function createTransaction(req, res, next) {
   try {
-    const { gigId } = req.body;
+    const { gigId, details, amount } = req.body;
 
     const gig = await Gig.findById(gigId);
     if (!gig) return res.status(404).json({ error: 'Gig not found.' });
 
-    // Simulated payment – auto-completes. The amount comes from the stored
-    // gig, never from the request body, so clients cannot set their own price.
+    // The freelancer and gig title always come from the stored gig, never
+    // from the request body, so a client cannot redirect a request elsewhere.
     const tx = await Transaction.create({
       gig:        gig._id,
       client:     req.user.id,
       freelancer: gig.freelancer,
       gigTitle:   gig.title,
-      amount:     gig.price,
-      status:     'completed',
+      details,
+      amount:     parseFloat(amount),
+      status:     'pending',
     });
 
     logger.info(
-      `Booking created: tx=${tx.id} | gig=${gig.id} | client=${req.user.id} | freelancer=${gig.freelancer} | amount=R${gig.price}`
+      `Job request sent: tx=${tx.id} | gig=${gig.id} | client=${req.user.id} | freelancer=${gig.freelancer} | offer=R${tx.amount}`
     );
 
     return res.status(201).json({
-      message: 'Booking confirmed. Payment simulated successfully.',
+      message: 'Request sent. The freelancer will accept or decline it.',
       transaction: tx,
     });
   } catch (err) {
@@ -57,8 +59,47 @@ async function createTransaction(req, res, next) {
 }
 
 /**
+ * PATCH /api/transactions/:id
+ * The freelancer who received a pending request accepts or declines it.
+ * Accepting counts as the simulated payment.
+ * Body: { status: 'accepted' | 'declined' }
+ * Access: freelancer (owner of the request only)
+ */
+async function respondToTransaction(req, res, next) {
+  try {
+    const tx = await Transaction.findById(req.params.id);
+    if (!tx) return res.status(404).json({ error: 'Request not found.' });
+    if (tx.freelancer.toString() !== req.user.id) {
+      logger.warn(`Forbidden: user ${req.user.id} attempted to respond to request ${tx.id}`);
+      return res.status(403).json({ error: 'You may only respond to requests sent to you.' });
+    }
+
+    // Conditional update so a request can only ever be answered once,
+    // even if two responses arrive at the same time.
+    const updated = await Transaction.findOneAndUpdate(
+      { _id: tx._id, status: 'pending' },
+      { status: req.body.status, respondedAt: new Date() },
+      { new: true }
+    );
+    if (!updated) {
+      return res.status(409).json({ error: `This request has already been ${tx.status}.` });
+    }
+
+    logger.info(`Job request ${updated.status}: tx=${updated.id} by freelancer ${req.user.id}`);
+    return res.status(200).json({
+      message: updated.status === 'accepted'
+        ? 'Request accepted. Payment simulated successfully.'
+        : 'Request declined.',
+      transaction: updated,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
  * GET /api/transactions/mine
- * Clients: bookings they made. Freelancers: bookings received for their gigs.
+ * Clients: requests they sent. Freelancers: requests received for their gigs.
  * Access: client, freelancer
  */
 async function getMyTransactions(req, res, next) {
@@ -80,12 +121,12 @@ async function getMyTransactions(req, res, next) {
 
 /**
  * GET /api/transactions/income
- * Returns income summary and estimated tax for the authenticated freelancer.
+ * Returns income (accepted requests) and estimated tax for the freelancer.
  * Access: freelancer only
  */
 async function getIncomeSummary(req, res, next) {
   try {
-    const txs = await Transaction.find({ freelancer: req.user.id, status: 'completed' })
+    const txs = await Transaction.find({ freelancer: req.user.id, status: 'accepted' })
       .populate('client', PARTY_FIELDS)
       .sort({ createdAt: -1 });
 
@@ -122,4 +163,4 @@ async function getAllTransactions(req, res, next) {
   }
 }
 
-module.exports = { createTransaction, getMyTransactions, getIncomeSummary, getAllTransactions };
+module.exports = { createTransaction, respondToTransaction, getMyTransactions, getIncomeSummary, getAllTransactions };

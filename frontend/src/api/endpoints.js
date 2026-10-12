@@ -11,8 +11,11 @@ export const createGig = (token, gig) => apiRequest('/gigs', { method: 'POST', b
 export const updateGig = (token, id, gig) => apiRequest(`/gigs/${id}`, { method: 'PUT', body: gig, token })
 export const deleteGig = (token, id) => apiRequest(`/gigs/${id}`, { method: 'DELETE', token })
 
-// Bookings / transactions
-export const bookGig = (token, gigId) => apiRequest('/transactions', { method: 'POST', body: { gigId }, token })
+// Job requests / transactions
+export const sendRequest = (token, gigId, { details, amount }) =>
+  apiRequest('/transactions', { method: 'POST', body: { gigId, details, amount: Number(amount) }, token })
+export const respondToRequest = (token, id, status) =>
+  apiRequest(`/transactions/${id}`, { method: 'PATCH', body: { status }, token })
 export const listMyBookings = (token) => apiRequest('/transactions/mine', { token })
 export const getIncome = (token) => apiRequest('/transactions/income', { token })
 

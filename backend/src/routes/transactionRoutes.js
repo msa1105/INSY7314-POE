@@ -1,19 +1,20 @@
 'use strict';
 
 /**
- * transactionRoutes.js – Booking / Transaction API Routes
+ * transactionRoutes.js – Job Request / Transaction API Routes
  *
- * POST /api/transactions          – Book a gig / create transaction (client only, rate limited)
- * GET  /api/transactions/mine     – Own bookings (client: made, freelancer: received)
- * GET  /api/transactions/income   – Income + estimated tax (freelancer only)
- * GET  /api/transactions          – All transactions (admin only)
+ * POST  /api/transactions         – Send a job request for a gig (client only, rate limited)
+ * PATCH /api/transactions/:id     – Accept or decline a request (owning freelancer only)
+ * GET   /api/transactions/mine    – Own requests (client: sent, freelancer: received)
+ * GET   /api/transactions/income  – Income + estimated tax from accepted requests (freelancer only)
+ * GET   /api/transactions         – All transactions (admin only)
  */
 
 const { Router } = require('express');
-const { body }   = require('express-validator');
+const { body, param } = require('express-validator');
 
 const {
-  createTransaction, getMyTransactions, getIncomeSummary, getAllTransactions,
+  createTransaction, respondToTransaction, getMyTransactions, getIncomeSummary, getAllTransactions,
 } = require('../controllers/transactionController');
 const { authenticate, authorise } = require('../middleware/auth');
 const { bookingLimiter }          = require('../middleware/rateLimiter');
@@ -29,9 +30,29 @@ router.post(
   authorise(ROLES.CLIENT),
   [
     body('gigId').isMongoId().withMessage('A valid gig ID is required.'),
+    body('details')
+      .isString().withMessage('Work details must be text.')
+      .trim().notEmpty().withMessage('Work details are required.')
+      .isLength({ min: 10, max: 2000 }).withMessage('Work details must be 10–2000 characters.')
+      .escape(),
+    body('amount')
+      .notEmpty().withMessage('Amount is required.')
+      .isFloat({ min: 1, max: 1000000 }).withMessage('Amount must be a number between 1 and 1 000 000.'),
   ],
   validate,
   createTransaction
+);
+
+router.patch(
+  '/:id',
+  authenticate,
+  authorise(ROLES.FREELANCER),
+  [
+    param('id').isMongoId().withMessage('Invalid request ID.'),
+    body('status').isIn(['accepted', 'declined']).withMessage('Status must be "accepted" or "declined".'),
+  ],
+  validate,
+  respondToTransaction
 );
 
 router.get(

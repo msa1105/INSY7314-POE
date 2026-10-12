@@ -26,7 +26,10 @@ export default function AdminPage() {
     return () => { cancelled = true }
   }, [token])
 
-  const volume = transactions.reduce((sum, tx) => sum + tx.amount, 0)
+  // Only accepted requests are paid, so only they count towards volume
+  const volume = transactions
+    .filter((tx) => tx.status === 'accepted')
+    .reduce((sum, tx) => sum + tx.amount, 0)
 
   return (
     <section className="page">
@@ -42,7 +45,7 @@ export default function AdminPage() {
       <div className="stats">
         <div className="card stat"><span className="stat__label">Users</span><span className="stat__value">{users.length}</span></div>
         <div className="card stat"><span className="stat__label">Transactions</span><span className="stat__value">{transactions.length}</span></div>
-        <div className="card stat"><span className="stat__label">Booking volume</span><span className="stat__value">{formatRand(volume)}</span></div>
+        <div className="card stat"><span className="stat__label">Paid volume</span><span className="stat__value">{formatRand(volume)}</span></div>
       </div>
 
       <div className="tabs" role="tablist">

@@ -44,6 +44,18 @@ export function validateLogin({ email, password }) {
   return errors
 }
 
+export function validateRequest({ details, amount }) {
+  const errors = {}
+  const d = details.trim()
+  if (!d) errors.details = 'Work details are required.'
+  else if (d.length < 10 || d.length > 2000) errors.details = 'Work details must be 10–2000 characters.'
+
+  const a = Number(amount)
+  if (amount === '' || amount === null) errors.amount = 'Amount is required.'
+  else if (!Number.isFinite(a) || a < 1 || a > 1000000) errors.amount = 'Amount must be a number between 1 and 1 000 000.'
+  return errors
+}
+
 export function validateGig({ title, description, price, category }) {
   const errors = {}
   const t = title.trim()

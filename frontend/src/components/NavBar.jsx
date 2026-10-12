@@ -4,12 +4,12 @@ import { useAuth } from '../auth/AuthContext'
 const LINKS = {
   client: [
     { to: '/gigs', label: 'Browse gigs' },
-    { to: '/bookings', label: 'My bookings' },
+    { to: '/bookings', label: 'My requests' },
   ],
   freelancer: [
     { to: '/gigs', label: 'Browse gigs' },
     { to: '/my-gigs', label: 'My gigs' },
-    { to: '/bookings', label: 'Bookings & income' },
+    { to: '/bookings', label: 'Requests & income' },
   ],
   admin: [
     { to: '/gigs', label: 'Gigs' },
