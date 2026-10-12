@@ -21,7 +21,7 @@ const https = fs.existsSync(keyFile) && fs.existsSync(certFile)
   ? { key: fs.readFileSync(keyFile), cert: fs.readFileSync(certFile) }
   : undefined
 
-const API_TARGET = process.env.VITE_API_TARGET || 'https://localhost:5000'
+const API_TARGET = process.env.VITE_API_TARGET || 'https://localhost:5001'
 
 // Content Security Policy for the built app: only our own scripts, styles,
 // images and API calls are allowed; no inline scripts, plugins or framing.

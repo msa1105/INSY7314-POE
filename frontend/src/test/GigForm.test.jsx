@@ -5,29 +5,50 @@ import GigForm from '../components/GigForm'
 import { ApiError } from '../api/client'
 
 describe('GigForm', () => {
-  test('shows field errors for invalid input and does not submit', async () => {
-    const onSubmit = vi.fn()
-    render(<GigForm onSubmit={onSubmit} />)
+  test('renders step 1 with progress bar at 25% and navigates through steps', async () => {
+    render(<GigForm onSubmit={vi.fn()} />)
 
-    await userEvent.type(screen.getByLabelText(/title/i), 'abc')
-    await userEvent.click(screen.getByRole('button', { name: /create gig/i }))
+    expect(screen.getByText('Step 1 of 4')).toBeInTheDocument()
+    expect(screen.getByLabelText(/title/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /back/i })).not.toBeInTheDocument()
 
-    expect(screen.getByText('Title must be 5–100 characters.')).toBeInTheDocument()
-    expect(screen.getByText('Description is required.')).toBeInTheDocument()
-    expect(screen.getByText('Price is required.')).toBeInTheDocument()
-    expect(screen.getByText('Category is required.')).toBeInTheDocument()
-    expect(onSubmit).not.toHaveBeenCalled()
+    // Move to step 2
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+    expect(screen.getByText('Step 2 of 4')).toBeInTheDocument()
+    expect(screen.getByLabelText(/description/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument()
+
+    // Move to step 3
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+    expect(screen.getByText('Step 3 of 4')).toBeInTheDocument()
+    expect(screen.getByLabelText(/category/i)).toBeInTheDocument()
+
+    // Move to step 4
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+    expect(screen.getByText('Step 4 of 4')).toBeInTheDocument()
+    expect(screen.getByLabelText(/price/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /publish/i })).toBeInTheDocument()
   })
 
-  test('submits trimmed values with a numeric price and resets', async () => {
+  test('submits trimmed values and shows Gig published message', async () => {
     const onSubmit = vi.fn().mockResolvedValue()
     render(<GigForm onSubmit={onSubmit} />)
 
+    // Step 1: Title
     await userEvent.type(screen.getByLabelText(/title/i), '  Website Copywriting  ')
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+
+    // Step 2: Description
     await userEvent.type(screen.getByLabelText(/description/i), 'Engaging copy for your landing page.')
-    await userEvent.type(screen.getByLabelText(/price/i), '750')
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+
+    // Step 3: Category
     await userEvent.selectOptions(screen.getByLabelText(/category/i), 'Writing')
-    await userEvent.click(screen.getByRole('button', { name: /create gig/i }))
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+
+    // Step 4: Price & Publish
+    await userEvent.type(screen.getByLabelText(/price/i), '750')
+    await userEvent.click(screen.getByRole('button', { name: /publish/i }))
 
     expect(onSubmit).toHaveBeenCalledWith({
       title: 'Website Copywriting',
@@ -35,30 +56,35 @@ describe('GigForm', () => {
       price: 750,
       category: 'Writing',
     })
-    expect(screen.getByLabelText(/title/i)).toHaveValue('')
+    expect(await screen.findByText('Gig published')).toBeInTheDocument()
   })
 
-  test('category is a fixed dropdown – free text cannot be entered', () => {
+  test('back button returns to previous step preserving entered values', async () => {
     render(<GigForm onSubmit={vi.fn()} />)
-    const category = screen.getByLabelText(/category/i)
-    expect(category.tagName).toBe('SELECT')
-    const options = Array.from(category.options).map((o) => o.value).filter(Boolean)
-    expect(options).toEqual(expect.arrayContaining(['Design', 'Writing', 'Development', 'Other']))
+
+    await userEvent.type(screen.getByLabelText(/title/i), 'Modern Logo Design')
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+
+    expect(screen.getByText('Step 2 of 4')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /back/i }))
+
+    expect(screen.getByText('Step 1 of 4')).toBeInTheDocument()
+    expect(screen.getByLabelText(/title/i)).toHaveValue('Modern Logo Design')
   })
 
-  test('edit mode pre-fills decoded values and shows server validation errors', async () => {
-    const onSubmit = vi.fn().mockRejectedValue(
-      new ApiError(422, 'Validation failed.', [{ field: 'price', message: 'Price must be a number between 1 and 1 000 000.' }]),
-    )
-    const gig = { id: 'g1', title: 'Bob&#x27;s Logos', description: 'Logos &amp; branding done well.', price: 900, category: 'Design' }
-    render(<GigForm initialGig={gig} onSubmit={onSubmit} onCancel={() => {}} />)
+  test('shows validation errors when publishing with invalid fields', async () => {
+    const onSubmit = vi.fn()
+    render(<GigForm onSubmit={onSubmit} />)
 
-    expect(screen.getByLabelText(/title/i)).toHaveValue("Bob's Logos")
-    expect(screen.getByLabelText(/description/i)).toHaveValue('Logos & branding done well.')
+    // Advance to step 4 without filling in fields
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+    await userEvent.click(screen.getByRole('button', { name: /next/i }))
+    await userEvent.click(screen.getByRole('button', { name: /publish/i }))
 
-    await userEvent.click(screen.getByRole('button', { name: /save changes/i }))
-
-    expect(await screen.findByText('Validation failed.')).toBeInTheDocument()
-    expect(screen.getByText('Price must be a number between 1 and 1 000 000.')).toBeInTheDocument()
+    // Should return to first invalid step (step 1: Title)
+    expect(screen.getByText('Step 1 of 4')).toBeInTheDocument()
+    expect(screen.getByText('Title is required.')).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
   })
 })

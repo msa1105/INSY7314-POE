@@ -223,3 +223,50 @@ a { color: var(--primary); text-underline-offset: 3px; }
   *, *::before, *::after { transition: none !important; }
   .gig-card:hover { transform: none; }
 }
+
+/* Color Hex, 2026
+ * #e3e6ea - Light gray color
+ * Color Hex
+ * https://www.color-hex.com/color/e3e6ea
+ * Accessed: 12 October 2026
+ */
+
+/* Color Hex, 2026
+ * #0f766e - Teal color
+ * Color Hex
+ * https://www.color-hex.com/color/0f766e
+ * Accessed: 12 October 2026
+ */
+
+/* MDN Contributors, 2026
+ * transition
+ * MDN Web Docs
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/transition
+ * Accessed: 12 October 2026
+ */
+.progress-bar {
+  margin-bottom: 20px;
+}
+
+.progress-bar__text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.progress-bar__track {
+  width: 100%;
+  height: 8px;
+  background-color: #e3e6ea;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background-color: #0f766e;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
